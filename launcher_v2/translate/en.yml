@@ -1,0 +1,39 @@
+_version: 1
+about.Build Information: Build Information
+about.Check for updates: Check for updates
+about.Data Directories: Data Directories
+about.Game Version: Game Version
+about.Game data directory: Game data directory
+about.Log files directory: Log files directory
+about.Operating System: Operating System
+about.Our Community: Our Community
+about.Report a bug: Report a bug
+about.join_us: Have a question? Found a bug? Want to help? Join us!
+first_launch.HintVCMIBuilder: If you don't have a copy of Heroes III installed, you can use our automatic installation tool "vcmibuilder", which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.
+first_launch.Locate Heroes III data files: Locate Heroes III data files
+first_launch.Next: Next
+first_launch.PleaseCopyHommData: To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.
+first_launch.PleaseCopyHommDataBtn: Check again
+first_launch.Select your language: Select your language
+first_launch.SelectHommDataLocation: Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.
+first_launch.SelectHommDataLocationBtn: Select HOMM data directory
+first_launch.VCMI data directories: VCMI data directories
+first_launch.VCMI data state: VCMI data state
+first_launch.intro_message: |
+  Thank you for installing VCMI!
+
+  Before you can start playing, there are a few more steps that need to be completed.
+
+  Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
+
+  Heroes® of Might and Magic® III HD is currently not supported!
+menu.TabName.About: About VCMI
+menu.TabName.Downloads: Downloads
+menu.TabName.Lobby: Lobby
+menu.TabName.MapEditor: Map editor
+menu.TabName.Mods: Mods
+menu.TabName.Settings: Settings
+menu.TabName.StartGame: Start game
+settings.SettingsGeneral.language: VCMI language
+toasts.error.HoMM data copy failed!: HoMM data copy failed!
+

@@ -8,6 +8,16 @@ add_definitions(
 	-DVCMI_VERSION_STRING="${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}.${VCMI_VERSION_PATCH}"
 )
 set(APP_SHORT_VERSION "${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}")
+
+if(LAUNCHER_V2)
+	if(ENABLE_GITVERSION)
+		set(VCMI_CARGO_FEATURES_DEFAULT "\"enable_gitversion\"") # TODO CHECK
+	endif()
+	configure_file("${CMAKE_SOURCE_DIR}/launcher_v2/Cargo_TO_EDIT.toml" "${CMAKE_SOURCE_DIR}/launcher_v2/Cargo.toml" @ONLY)
+	configure_file("${CMAKE_SOURCE_DIR}/android_v2/app/build.gradle.in" "${CMAKE_SOURCE_DIR}/android_v2/app/build.gradle" @ONLY)
+
+endif()
+
 if(NOT VCMI_VERSION_PATCH EQUAL 0)
 	string(APPEND APP_SHORT_VERSION ".${VCMI_VERSION_PATCH}")
 endif()

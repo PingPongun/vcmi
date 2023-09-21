@@ -433,7 +433,11 @@ endif()
 if(ENABLE_SINGLE_APP_BUILD)
 	target_link_libraries(vcmiclient PRIVATE vcmiserver)
 	if(ENABLE_LAUNCHER)
-		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
+		if(LAUNCHER_V2)
+			target_link_libraries(vcmiclient PRIVATE vcmilauncherv2lib)
+		else()	
+			target_link_libraries(vcmiclient PRIVATE vcmilauncher)
+		endif()
 	endif()
 endif()
 target_link_libraries(vcmiclient PRIVATE
@@ -473,9 +477,15 @@ if(APPLE_IOS)
 	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
 elseif(ANDROID)
 	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
-	add_custom_command(TARGET vcmiclient POST_BUILD
-		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main"
-	)
+	if(LAUNCHER_V2)
+		add_custom_command(TARGET vcmiclient POST_BUILD
+			COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${CMAKE_SOURCE_DIR}/android_v2/app/src/main"
+		)
+	else()	
+		add_custom_command(TARGET vcmiclient POST_BUILD
+			COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main"
+		)
+	endif()
 	install(TARGETS vcmiclient DESTINATION ${LIB_DIR})
 else()
 	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})

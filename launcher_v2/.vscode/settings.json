@@ -1,0 +1,14 @@
+{
+    "editor.formatOnSave": true,
+    "rust-analyzer.cargo.buildScripts.enable": true,
+    "rust-analyzer.check.allTargets": false,
+    "rust-analyzer.procMacro.enable": true,
+    "rust-analyzer.procMacro.attributes.enable": true,
+    "rust-analyzer.cargo.features": [
+        "desktop"
+    ],
+    "i18n-ally.localesPaths": [
+        "E:/Other/vcmi/vcmi/launcher_v2/translate"
+    ],
+    "i18n-ally.keystyle": "nested",
+}

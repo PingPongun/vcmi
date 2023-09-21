@@ -1,0 +1,29 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+	
+    <style name="Base.Theme.VCMI" parent="@style/Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/bgMain</item>
+        <item name="colorPrimaryDark">@color/bgDark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
+
+        <item name="android:textViewStyle">@style/VCMI.Text</item>
+    </style>
+    <style name="Theme.VCMI" parent="@style/Base.Theme.VCMI">
+        <item name="android:listDivider">@drawable/divider_compat</item>
+    </style>
+    <style name="Theme.VCMI.Full">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+	
+    <style name="VCMI" />
+
+    <style name="VCMI.Text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/font_normal</item>
+        <item name="android:textColor">@color/textMain</item>
+    </style>
+
+</resources>

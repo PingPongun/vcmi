@@ -1,0 +1,18 @@
+[alias] # command aliases
+bwin = "build --bins --features=desktop --target x86_64-pc-windows-msvc"
+blinux = "build --bins --features=desktop --target x86_64-unknown-linux-gnu"
+bmac = "build --bins --features=desktop --target x86_64-apple-darwin"
+bmacarm = "build --bins --features=desktop --target aarch64-apple-darwin"
+bios = "build --lib --target aarch64-apple-ios"
+bandroid = "ndk -t arm64-v8a -o ../android_v2/app/src/main/jniLibs/ build"
+
+rwin = "bwin --release"
+rlinux = "blinux --release"
+rmac = "bmac --release"
+rmacarm = "bmacarm --release"
+rios = "bios --release"
+randroid = "bandroid --release"
+
+r = "run --features=desktop"
+rr = "r --profile RelWithDebInfo"
+rrr = "r --release"

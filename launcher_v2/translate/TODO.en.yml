@@ -1,0 +1,51 @@
+_version: 1
+HOMMDataState.CheckingSelectedPath: CheckingSelectedPath
+HOMMDataState.CheckingVCMIDirs: CheckingVCMIDirs
+HOMMDataState.Found: Found
+HOMMDataState.NotFound: NotFound
+HOMMDataState.NotSelected: NotSelected
+InitializationState.Finished: Finished
+InitializationState.GetHoMMData: GetHoMMData
+InitializationState.PresetMods: PresetMods
+InitializationState.ProcessingData: ProcessingData
+InitializationState.SetLanguage: SetLanguage
+InitializationState.Unknown: Unknown
+about.Download: Download
+about.User data directory: User data directory
+about.VCMI is up-to-date!: VCMI is up-to-date!
+about.VCMI update available!: VCMI update available!
+first_launch.Almost there...: ''
+first_launch.VCMI prepares necessary files.: ''
+settings.Settings.general: general
+settings.Settings.launcher: launcher
+settings.Settings.server: server
+settings.Settings.video: video
+settings.SettingsGeneral.autosave_count_limit: autosave_count_limit
+settings.SettingsGeneral.game_data_language: game_data_language
+settings.SettingsGeneral.music: music
+settings.SettingsGeneral.sound: sound
+settings.SettingsLauncher.auto_check_repositories: auto_check_repositories
+settings.SettingsLauncher.update_on_startup: update_on_startup
+settings.SettingsServer.AIAdventure.Nullkiller: Nullkiller
+settings.SettingsServer.AIAdventure.VCAI: VCAI
+settings.SettingsServer.AIBattle.BattleAI: BattleAI
+settings.SettingsServer.AIBattle.StupidAI: StupidAI
+settings.SettingsServer.allied_ai: allied_ai
+settings.SettingsServer.enemy_ai: enemy_ai
+settings.SettingsServer.friendly_ai: friendly_ai
+settings.SettingsServer.neutral_ai: neutral_ai
+settings.SettingsServer.player_ai: player_ai
+settings.SettingsVideo.fullscreen: fullscreen
+settings.SettingsVideo.real_fullscreen: real_fullscreen
+settings.SettingsVideo.show_intro: show_intro
+toasts.error.Prepare internal data failed!: Prepare internal data failed!
+toasts.error.Update check failed!: Update check failed!
+toasts.error.Valid HoMM data not found!: Valid HoMM data not found!
+toasts.error.settings_corrupted: settings_corrupted
+toasts.error.settings_open: settings_open
+toasts.error.settings_save: settings_save
+toasts.error.vcmi_data_verification_failed: vcmi_data_verification_failed
+toasts.success.HoMM data imported!: HoMM data imported!
+toasts.success.Internal data ready!: Internal data ready!
+toasts.success.Valid HoMM data found!: Valid HoMM data found!
+

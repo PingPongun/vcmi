@@ -74,6 +74,8 @@ option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 option(ENABLE_STATIC_AI_LIBS "Add AI code into VCMI lib directly" ${staticAI})
 
+option(LAUNCHER_V2 "Use launcher_v2 instead of old launcher, affects also android launcher" ON)
+
 # Used for Snap packages and also useful for debugging
 if(NOT APPLE_IOS AND NOT ANDROID)
 	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
@@ -126,7 +128,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR
 
 include(VCMIUtils)
 include(VersionDefinition)
-if(ANDROID)
+if(ANDROID AND NOT LAUNCHER_V2)
 	set(VCMI_VERSION "${APP_SHORT_VERSION}")
 	configure_file("android/GeneratedVersion.java.in" "${CMAKE_SOURCE_DIR}/android/vcmi-app/src/main/java/eu/vcmi/vcmi/util/GeneratedVersion.java" @ONLY)
 endif()
@@ -463,7 +465,7 @@ if(TARGET SDL2_ttf::SDL2_ttf)
 	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
 endif()
 
-if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+if((ENABLE_LAUNCHER AND NOT LAUNCHER_V2) OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
@@ -604,9 +606,14 @@ if(NOT TARGET minizip::minizip)
 	add_library(minizip::minizip ALIAS minizip)
 endif()
 
-if(ENABLE_LAUNCHER)
+if(ENABLE_LAUNCHER AND NOT LAUNCHER_V2)
 	add_subdirectory(launcher)
 endif()
+
+if(LAUNCHER_V2)
+	add_subdirectory(launcher_v2)
+endif()
+
 if(ENABLE_EDITOR)
 	add_subdirectory(mapeditor)
 endif()
@@ -647,7 +654,7 @@ if(ANDROID)
 		file(WRITE \"\${absolute_data_dir}/internalDataHash.txt\"
 			\${internal_data_zip_md5}
 		)
-	")
+	")# TODO Launcher v2
 else()
 	install(DIRECTORY config DESTINATION ${DATA_DIR})
 	install(DIRECTORY Mods DESTINATION ${DATA_DIR})
@@ -685,7 +692,7 @@ if(WIN32)
 		set(debug_postfix d)
 	endif()
 
-	if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+	if((ENABLE_LAUNCHER AND NOT LAUNCHER_V2) OR ENABLE_EDITOR)
 		get_target_property(QtCore_location Qt${QT_VERSION_MAJOR}::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
 		file(GLOB dep_files
