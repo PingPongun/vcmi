@@ -6,6 +6,7 @@
 - uses Rust + egui (instead of C++ + Qt)
   - as the rest of project is in C++ this may be counted also as disadvantage
   - requires more time & disc space to build
+  - binary is larger (I guess it could be mitigated somehow, but it does it realy matters nowadays if total size is 20MB larger? (~5MB can be slashed by switching from "wgpu" to "glow" on eframe))
   - GUI code is closely bound to normal code (immediate mode GUI)
   - no longer object oriented, more procedural aproach (code is more linear & can be easly followed & understood)
   - all prons of Rust programing, including:
@@ -13,7 +14,7 @@
     - cargo: zero-effort package managament
     - powerfull & ~simple macros
     - less error-prone
-    - less code (-3.5kloc in Java (-45%), launcher from 4.5k in C++(not including *.ui files) to 1.7k in Rust (! Rust version is not yet feature full))
+    - less code (-3.5kloc in Java (-45%, whats left is mostly SDL), launcher from 4.5k in C++(not including *.ui files) to 1.7k in Rust (! Rust version is not yet feature full))
 - low effort to add new settings to gui
 - friendlier translations format
 - dark mode
@@ -46,13 +47,12 @@
 - Check VDirs corectness & consistence with VCMI_dirs.cpp
 - reuse VCMI_dirs.cpp ???
 - advanced homm data verify
-- add chinese font OR better start using system fonts
 - start client with args
 - migrate translations
 
 ### Nice to have
 
-- incremental mod update (git?)
+- incremental mod update (git?, using sparse git (currently not supported by any library) can also enable instaling separete submods, which is usefull if they are dependencies of another mods)
 - vcmi updater
 - handle errors (not just ignore them)
 - even further reduce android/java code
@@ -60,6 +60,7 @@
 - Documentation & tests
 - UI/visuals improvement
 - refresh translations from build.rs
+- Use system fonts (?)
 
 ## Developement
 

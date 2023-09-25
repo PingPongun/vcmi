@@ -9,7 +9,7 @@
  *
  */
 use eframe::egui;
-use egui::{Align, Align2, ImageButton, Layout, Ui};
+use egui::{Align, Align2, FontData, FontDefinitions, FontFamily, ImageButton, Layout, Ui};
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
 use rust_i18n::ToStringI18N;
@@ -136,6 +136,26 @@ impl VCMILauncher {
         if let Some(monitor_size) = cc.integration_info.window_info.monitor_size {
             _out_of_window_size = monitor_size - cc.integration_info.window_info.size;
         }
+
+        // Install additionall fonts (supporting non-latin characters):
+        let mut fonts = FontDefinitions::default();
+        fonts.font_data.insert(
+            "WenQuanYi-Micro-Hei".to_owned(),
+            FontData::from_static(include_bytes!("../assets/WenQuanYi-Micro-Hei-Regular.ttf")),
+        ); // .ttf and .otf supported
+           // Put font as last fallback:
+        fonts
+            .families
+            .get_mut(&FontFamily::Proportional)
+            .unwrap()
+            .push("WenQuanYi-Micro-Hei".to_owned());
+        fonts
+            .families
+            .get_mut(&FontFamily::Monospace)
+            .unwrap()
+            .push("WenQuanYi-Micro-Hei".to_owned());
+        cc.egui_ctx.set_fonts(fonts);
+
         let mut ret = Self {
             dirs,
             settings: Default::default(),
