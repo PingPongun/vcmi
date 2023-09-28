@@ -9,7 +9,10 @@
  *
  */
 use eframe::egui;
-use egui::{Align, Align2, FontData, FontDefinitions, FontFamily, ImageButton, Layout, Ui};
+use egui::{
+    include_image, Align, Align2, FontData, FontDefinitions, FontFamily, Image, ImageButton,
+    ImageSource, Layout, Ui, Vec2,
+};
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
 use rust_i18n::ToStringI18N;
@@ -20,8 +23,7 @@ use tokio::task::JoinHandle;
 
 use crate::about_project::FetchUpdate;
 use crate::first_launch::FirstLaunchState;
-use crate::gui_primitives::icons;
-use crate::platform::{NativeParams, VDirs};
+use crate::platform::VDirs;
 use crate::settings::Settings;
 
 rust_i18n::i18n!("./translate", fallback = "en");
@@ -37,13 +39,12 @@ pub enum TabName {
     MapEditor,
     StartGame,
 }
+#[derive(Default)]
 pub struct VCMILauncher {
     pub dirs: VDirs,
     pub settings: Settings,
     pub first_launch: FirstLaunchState,
     pub tab: TabName,
-    pub icons: icons::Icons,
-    pub native: NativeParams,
     pub update_fetch: FetchUpdate,
 }
 
@@ -65,10 +66,23 @@ impl eframe::App for VCMILauncher {
             let show_tabs = |mut strip: Strip<'_, '_>| {
                 let mut show_tab_button = |ui: &mut Ui, tab: TabName, enabled: bool| {
                     ui.set_enabled(enabled);
+
+                    const TAB_ICONS: [ImageSource; 7] = [
+                        include_image!("../icons/menu-mods.png"),
+                        include_image!("../icons/menu-downloads.png"),
+                        include_image!("../icons/menu-settings.png"),
+                        include_image!("../icons/menu-lobby.png"),
+                        include_image!("../icons/about-project.png"),
+                        include_image!("../icons/menu-editor.png"),
+                        include_image!("../icons/menu-game.png"),
+                    ];
                     if ui
                         .add(
-                            ImageButton::new(&self.icons.menu[tab as usize], [icon_size; 2])
-                                .selected(self.tab == tab),
+                            ImageButton::new(
+                                Image::new(TAB_ICONS[tab as usize].clone())
+                                    .fit_to_exact_size(Vec2::new(icon_size, icon_size)),
+                            )
+                            .selected(self.tab == tab),
                         )
                         .clicked()
                     {
@@ -131,7 +145,7 @@ impl eframe::App for VCMILauncher {
 
 impl VCMILauncher {
     /// Called once before the first frame.
-    pub fn new(cc: &eframe::CreationContext<'_>, native: NativeParams, dirs: VDirs) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>, dirs: VDirs) -> Self {
         let mut _out_of_window_size = Default::default(); //may be used to detect notch?
         if let Some(monitor_size) = cc.integration_info.window_info.monitor_size {
             _out_of_window_size = monitor_size - cc.integration_info.window_info.size;
@@ -156,14 +170,11 @@ impl VCMILauncher {
             .push("WenQuanYi-Micro-Hei".to_owned());
         cc.egui_ctx.set_fonts(fonts);
 
+        egui_extras::install_image_loaders(&cc.egui_ctx);
+
         let mut ret = Self {
             dirs,
-            settings: Default::default(),
-            first_launch: Default::default(),
-            tab: Default::default(),
-            icons: icons::Icons::load(&cc.egui_ctx),
-            native: native.clone(),
-            update_fetch: Default::default(),
+            ..Default::default()
         };
         ret.load_settings();
         if ret.settings.launcher.update_on_startup {

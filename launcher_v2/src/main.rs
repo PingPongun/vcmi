@@ -93,6 +93,7 @@ fn _main(mut options: NativeOptions, native: NativeParams) {
     let dirs = VDirs::new(native.clone());
     logging_setup(&dirs.log);
     options.renderer = Renderer::Wgpu;
+    // options.renderer = Renderer::Glow;
 
     let icon_raw = include_bytes!("../icons/VCMI_launcher.ico");
     let icon = image::load_from_memory_with_format(icon_raw.as_slice(), image::ImageFormat::Ico)
@@ -105,10 +106,11 @@ fn _main(mut options: NativeOptions, native: NativeParams) {
         width: icon_width,
         height: icon_height,
     });
+
     let _ = eframe::run_native(
         "VCMI Launcher",
         options,
-        Box::new(|cc| Box::new(VCMILauncher::new(cc, native, dirs))),
+        Box::new(|cc| Box::new(VCMILauncher::new(cc, dirs))),
     )
     .unwrap_or_else(|err| {
         log::error!("Failure while running EFrame application: {err:?}");

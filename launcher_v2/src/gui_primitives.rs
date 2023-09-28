@@ -8,83 +8,21 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-use egui::{InnerResponse, TextureHandle, Ui, Widget};
+use egui::{InnerResponse, Ui, Widget};
 use rust_i18n::set_locale;
 use strum::{EnumMessage, IntoEnumIterator};
 
 use crate::settings::{Language, RangedVal};
 
-pub mod icons {
-    use egui::Context;
-
-    use super::*;
-    macro_rules! load_icon {
-        ($name:literal, $ctx:ident) => {{
-            let icon_raw = include_bytes!($name);
-            let icon =
-                image::load_from_memory_with_format(icon_raw.as_slice(), image::ImageFormat::Png)
-                    .unwrap()
-                    .to_rgba8();
-            let (width, height) = icon.dimensions();
-            let image = egui::ColorImage::from_rgba_unmultiplied(
-                [width as usize, height as usize],
-                &icon.as_raw(),
-            );
-            $ctx.load_texture($name, image, Default::default())
-        }};
-    }
-    macro_rules! load_icons {
-        ($ctx:ident, [$($name:literal),*]) => {[$(load_icon!($name,$ctx)),*]};
-    }
-    #[derive(Default, PartialEq, Clone, Copy)]
-    #[allow(dead_code)]
-    pub enum IconModName {
-        #[default]
-        Delete = 0,
-        Download,
-        Disabled,
-        Enabled,
-        Update,
-        Invalid,
-    }
-    pub struct Icons {
-        pub menu: [TextureHandle; 7],
-        pub mod_state: [TextureHandle; 6],
-        pub lobby: [TextureHandle; 1],
-    }
-
-    impl Icons {
-        pub fn load(ctx: &Context) -> Self {
-            Icons {
-                menu: load_icons!(
-                    ctx,
-                    [
-                        "../icons/menu-mods.png",
-                        "../icons/menu-downloads.png",
-                        "../icons/menu-settings.png",
-                        "../icons/menu-lobby.png",
-                        "../icons/about-project.png",
-                        "../icons/menu-editor.png",
-                        "../icons/menu-game.png"
-                    ]
-                ),
-                mod_state: load_icons!(
-                    ctx,
-                    [
-                        "../icons/mod-delete.png",
-                        "../icons/mod-download.png",
-                        "../icons/mod-disabled.png",
-                        "../icons/mod-enabled.png",
-                        "../icons/mod-update.png",
-                        "../icons/mod-invalid.png"
-                    ]
-                ),
-                lobby: load_icons!(ctx, ["../icons/room-private.png"]),
-            }
-        }
-    }
+#[macro_export]
+macro_rules! icon {
+    ($ui:ident,$path: literal) => {
+        $ui.add(
+            egui::Image::new(egui::include_image!($path))
+                .max_height($ui.text_style_height(&egui::TextStyle::Body)),
+        );
+    };
 }
-
 ///////////////////////////////////////////////////////////////////
 /////////////////DisplayGUI trait & implementations////////////////
 ///////////////////////////////////////////////////////////////////
