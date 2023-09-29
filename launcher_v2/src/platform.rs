@@ -11,6 +11,10 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use egui_toast::Toast;
+use rust_i18n::t;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 #[cfg(target_os = "ios")]
 use std::ffi::c_char;
 #[cfg(target_os = "ios")]
@@ -290,6 +294,52 @@ impl VCMILauncher {
         {
             // Map editor works only on desktop
             unreachable!()
+        }
+    }
+}
+pub fn load_file<T: DeserializeOwned + Default>(path: &Path) -> T {
+    match std::fs::File::open(path) {
+        Ok(file) => match serde_json::from_reader(file) {
+            Err(err) => {
+                Toast::error(t!("toasts.error.settings_corrupted"));
+                log::error!(
+                    "Deserialization from file: {} failed!; Error: {}",
+                    path.display(),
+                    err
+                );
+                Default::default()
+            }
+            Ok(loaded) => loaded,
+        },
+        Err(err) => match err.kind() {
+            std::io::ErrorKind::NotFound => Default::default(), //this error should be silenced, as it is normal on first launch that file is yet created
+            _ => {
+                Toast::error(t!("toasts.error.settings_open"));
+                log::error!("Open file: {} failed!; Error: {}", path.display(), err);
+                Default::default()
+            }
+        },
+    }
+}
+pub fn save_file<T: ?Sized + Serialize>(path: &Path, data: &T) {
+    match std::fs::File::create(&path) {
+        Ok(file) => {
+            if let Err(err) = serde_json::to_writer_pretty(file, data) {
+                Toast::error(t!("toasts.error.settings_save"));
+                log::error!(
+                    "Serialization to file: {} failed!; Error: {}",
+                    path.display(),
+                    err
+                )
+            }
+        }
+        Err(err) => {
+            Toast::error(t!("toasts.error.settings_save"));
+            log::error!(
+                "Open file: {} for writing failed!; Error: {}",
+                path.display(),
+                err
+            )
         }
     }
 }

@@ -12,15 +12,19 @@ use egui::{InnerResponse, Ui, Widget};
 use rust_i18n::set_locale;
 use strum::{EnumMessage, IntoEnumIterator};
 
-use crate::settings::{Language, RangedVal};
+use crate::{
+    settings::{Language, RangedVal},
+    vcmi_launcher::LANGUAGE,
+};
 
 #[macro_export]
 macro_rules! icon {
     ($ui:ident,$path: literal) => {
         $ui.add(
             egui::Image::new(egui::include_image!($path))
-                .max_height($ui.text_style_height(&egui::TextStyle::Body)),
-        );
+                .max_height($ui.text_style_height(&egui::TextStyle::Body))
+                .sense(egui::Sense::click()),
+        )
     };
 }
 ///////////////////////////////////////////////////////////////////
@@ -64,7 +68,7 @@ lazy_static::lazy_static! {
         .map(|lang| lang.get_message().unwrap())
         .collect();
 }
-impl<const LAUNCHER: bool> DisplayGUI for Language<LAUNCHER> {
+impl DisplayGUI for Language<false> {
     fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
         let mut idx = *self as usize;
         egui::Label::new(label).ui(ui);
@@ -75,10 +79,26 @@ impl<const LAUNCHER: bool> DisplayGUI for Language<LAUNCHER> {
             |i| LANGUAGES_I18N[i],
         );
         if idx != *self as usize {
-            if LAUNCHER {
-                set_locale(LANGUAGES_SHORT[idx])
-            };
             *self = Language::from_repr(idx).unwrap();
+            return true;
+        }
+        return false;
+    }
+}
+impl DisplayGUI for Language<true> {
+    fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
+        let mut idx = *self as usize;
+        egui::Label::new(label).ui(ui);
+        egui::ComboBox::from_id_source(ui.next_auto_id()).show_index(
+            ui,
+            &mut idx,
+            LANGUAGES_I18N.len(),
+            |i| LANGUAGES_I18N[i],
+        );
+        if idx != *self as usize {
+            *self = Language::from_repr(idx).unwrap();
+            set_locale(LANGUAGES_SHORT[idx]);
+            *LANGUAGE.write() = self.clone();
             return true;
         }
         return false;

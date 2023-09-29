@@ -15,6 +15,7 @@ use egui::{
 };
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
+use parking_lot::RwLock;
 use rust_i18n::ToStringI18N;
 use std::future::Future;
 use std::sync::Arc;
@@ -24,7 +25,7 @@ use tokio::task::JoinHandle;
 use crate::about_project::FetchUpdate;
 use crate::first_launch::FirstLaunchState;
 use crate::platform::VDirs;
-use crate::settings::Settings;
+use crate::settings::{Language, Settings};
 
 rust_i18n::i18n!("./translate", fallback = "en");
 #[derive(ToStringI18N, Default, PartialEq, Clone, Copy)]
@@ -39,6 +40,7 @@ pub enum TabName {
     MapEditor,
     StartGame,
 }
+pub static LANGUAGE: RwLock<Language<true>> = RwLock::new(Language::English);
 #[derive(Default)]
 pub struct VCMILauncher {
     pub dirs: VDirs,
@@ -177,7 +179,7 @@ impl VCMILauncher {
             ..Default::default()
         };
         ret.load_settings();
-        if ret.settings.launcher.update_on_startup {
+        if *ret.settings.launcher.update_on_startup {
             ret.spawn_update_check_vcmi();
         }
         ret
@@ -195,7 +197,7 @@ lazy_static::lazy_static! {
 #[derive(Default)]
 pub enum AsyncHandle<T: Send, P> {
     #[default]
-    Uninit,
+    Uninit, // or Aborted
     Running(JoinHandle<Result<T, ()>>, Arc<P>),
     Finished(Result<T, ()>),
 }
@@ -210,7 +212,7 @@ impl<T: Send + 'static, P> AsyncHandle<T, P> {
             *self = Running(RUNTIME.spawn(future), progress);
         }
     }
-    fn fetch_handle(&mut self) {
+    pub fn fetch_handle(&mut self) {
         if let Running(handle, _) = self {
             if handle.is_finished() {
                 *self = Finished(RUNTIME.block_on(handle).unwrap_or(Err(())))

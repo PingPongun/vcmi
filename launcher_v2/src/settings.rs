@@ -11,43 +11,31 @@
  *
  */
 use educe::Educe;
-use egui::{Ui, Widget};
+use egui::{ScrollArea, Ui, Widget};
 use egui_toast::Toast;
 use fs_extra::error::{Error, ErrorKind};
 use rust_i18n::*;
 use std::collections::HashMap;
+use std::fmt::Display;
+use std::ops::Deref;
+use std::ops::DerefMut;
 use std::path::Path;
 use strum::*;
 use vcmi_launcher_macros::*;
 
 use crate::gui_primitives::DisplayGUI;
+use crate::platform::{load_file, save_file};
 use crate::vcmi_launcher::*;
 
 impl VCMILauncher {
     pub fn load_settings(&mut self) {
         log::info!("Loading config/settings file ...");
         let path = self.dirs.settings.clone();
-        match std::fs::File::open(&path) {
-            Ok(file) => match serde_json::from_reader(file) {
-                Err(err) => {
-                    Toast::error(t!("toasts.error.settings_corrupted"));
-                    log::error!(
-                        "Deserialization from file: {} failed!; Error: {}",
-                        path.display(),
-                        err
-                    )
-                }
-                Ok(loaded_settings) => self.settings = loaded_settings,
-            },
-            Err(err) => match err.kind() {
-                std::io::ErrorKind::NotFound => (), //this error should be silenced, as it is normal on first launch that file is yet created
-                _ => {
-                    Toast::error(t!("toasts.error.settings_open"));
-                    log::error!("Open file: {} failed!; Error: {}", path.display(), err)
-                }
-            },
-        }
+        self.settings = load_file(&path);
+
         set_locale(self.settings.general.language.get_message().unwrap());
+        *LANGUAGE.write() = self.settings.general.language.clone();
+
         // check if homm data is present in vcmi dir
         if let Err(err) =
             check_data_dir_valid(&self.dirs.user_data).or(check_data_dir_valid(&self.dirs.internal))
@@ -62,30 +50,15 @@ impl VCMILauncher {
 
     pub fn save_settings(&mut self) {
         let path = self.dirs.settings.clone();
-        match std::fs::File::create(&path) {
-            Ok(file) => {
-                if let Err(err) = serde_json::to_writer_pretty(file, &self.settings) {
-                    Toast::error(t!("toasts.error.settings_save"));
-                    log::error!(
-                        "Serialization to file: {} failed!; Error: {}",
-                        path.display(),
-                        err
-                    )
-                }
-            }
-            Err(err) => {
-                Toast::error(t!("toasts.error.settings_save"));
-                log::error!(
-                    "Open file: {} for writing failed!; Error: {}",
-                    path.display(),
-                    err
-                )
-            }
-        }
+        save_file(&path, &self.settings);
     }
 
     pub fn show_settings(&mut self, ui: &mut Ui) {
-        if self.settings.show_ui(ui, "settings:") {
+        if ScrollArea::vertical()
+            .auto_shrink([false; 2])
+            .show(ui, |ui| self.settings.show_ui(ui, "settings:"))
+            .inner
+        {
             self.save_settings();
         }
     }
@@ -122,16 +95,13 @@ pub struct SettingsGeneral {
     #[skip]
     extra: HashMap<String, serde_json::Value>,
 }
-#[derive(serde::Deserialize, serde::Serialize, DisplayGUI, Educe)]
-#[educe(Default)]
+#[derive(Default, serde::Deserialize, serde::Serialize, DisplayGUI)]
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
 pub struct SettingsLauncher {
-    #[educe(Default = true)]
-    pub auto_check_repositories: bool,
-    #[educe(Default = true)]
-    pub update_on_startup: bool,
-    // defaultRepositoryEnabled: bool,
+    pub auto_check_repositories: Tbool,
+    pub update_on_startup: Tbool,
+    // defaultRepositoryEnabled: Tbool,
     // extraRepositoryEnabled: bool,
     // extraRepositoryURL: String,
     #[skip]
@@ -158,16 +128,14 @@ pub struct SettingsServer {
     #[skip]
     extra: HashMap<String, serde_json::Value>,
 }
-#[derive(serde::Deserialize, serde::Serialize, DisplayGUI, Educe)]
-#[educe(Default)]
+#[derive(Default, serde::Deserialize, serde::Serialize, DisplayGUI)]
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
 pub struct SettingsVideo {
     fullscreen: bool,
     real_fullscreen: bool,
     // resolution
-    #[educe(Default = true)]
-    show_intro: bool,
+    show_intro: Tbool,
     // targetfps
     #[serde(flatten)]
     #[skip]
@@ -198,7 +166,11 @@ pub enum Language<const LAUNCHER: bool> {
     Czech,
     //add other languages
 }
-
+impl<const LAUNCHER: bool> Display for Language<LAUNCHER> {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "{}", serde_plain::to_string(self).unwrap())
+    }
+}
 impl<const LAUNCHER: bool> Default for Language<LAUNCHER> {
     fn default() -> Self {
         //get system locale
@@ -284,4 +256,26 @@ pub fn check_data_dir_valid(dir: &Path) -> fs_extra::error::Result<()> {
     }
     //TODO ? more complex check
     Ok(())
+}
+
+///Same as bool but defaults to true
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct Tbool(bool);
+
+impl Default for Tbool {
+    fn default() -> Self {
+        Self(true)
+    }
+}
+impl Deref for Tbool {
+    type Target = bool;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl DerefMut for Tbool {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
