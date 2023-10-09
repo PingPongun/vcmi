@@ -15,10 +15,14 @@ use egui::{ScrollArea, Ui, Widget};
 use egui_toast::Toast;
 use fs_extra::error::{Error, ErrorKind};
 use rust_i18n::*;
+use serde::Deserialize;
+use serde::Serialize;
+use serde_enum_str::Deserialize_enum_str;
+use serde_enum_str::Serialize_enum_str;
 use std::collections::HashMap;
-use std::fmt::Display;
 use std::ops::Deref;
 use std::ops::DerefMut;
+use std::sync::atomic::AtomicUsize;
 use std::path::Path;
 use strum::*;
 use vcmi_launcher_macros::*;
@@ -33,8 +37,8 @@ impl VCMILauncher {
         let path = self.dirs.settings.clone();
         self.settings = load_file(&path);
 
-        set_locale(self.settings.general.language.get_message().unwrap());
-        *LANGUAGE.write() = self.settings.general.language.clone();
+        set_locale(self.settings.general.language.short());
+        LANGUAGE.set(self.settings.general.language.clone());
 
         // check if homm data is present in vcmi dir
         if let Err(err) =
@@ -143,11 +147,23 @@ pub struct SettingsVideo {
 }
 
 ///////////////////////////////////////////////////////////////
-#[derive(Clone, Copy, serde::Deserialize, serde::Serialize, FromRepr, EnumIter, EnumMessage)]
+#[derive(
+    Clone,
+    Debug,
+    PartialEq,
+    Eq,
+    Hash,
+    Deserialize_enum_str,
+    Serialize_enum_str,
+    FromRepr,
+    EnumIter,
+    EnumMessage,
+)]
 #[serde(rename_all = "lowercase")]
-pub enum Language<const LAUNCHER: bool> {
+#[repr(usize)]
+pub enum Language {
     #[strum(message = "en", detailed_message = "English")]
-    English,
+    English = 0,
     #[strum(message = "pl", detailed_message = "polski")]
     Polish,
     #[strum(message = "de", detailed_message = "Deutsch")]
@@ -164,14 +180,14 @@ pub enum Language<const LAUNCHER: bool> {
     Spanish,
     #[strum(message = "cs", detailed_message = "čeština")]
     Czech,
-    //add other languages
+    #[serde(other)]
+    Other(String), //add other languages
 }
-impl<const LAUNCHER: bool> Display for Language<LAUNCHER> {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        write!(f, "{}", serde_plain::to_string(self).unwrap())
-    }
-}
-impl<const LAUNCHER: bool> Default for Language<LAUNCHER> {
+
+#[derive(Clone, Default, PartialEq, Eq, Hash, Deserialize, Serialize)]
+pub struct GameLanguage(pub String);
+
+impl Default for Language {
     fn default() -> Self {
         //get system locale
         let locale = sys_locale::get_locale().unwrap_or_else(|| String::from("en-US"));
@@ -181,15 +197,48 @@ impl<const LAUNCHER: bool> Default for Language<LAUNCHER> {
             .unwrap_or_default();
         let mut ret = Language::English;
         Language::iter().for_each(|lang| {
-            if lang.get_message().unwrap() == locale {
+            if lang.short() == locale {
                 ret = lang;
             }
         });
         ret
     }
 }
+impl Language {
+    pub const fn int(&self) -> usize {
+        unsafe { *(self as *const Self as *const usize) }
+    }
+    pub fn short(&self) -> &str {
+        if let Language::Other(lang) = self {
+            lang
+        } else {
+            self.get_message().unwrap()
+        }
+    }
+    pub fn translated(&self) -> &str {
+        if let Language::Other(lang) = self {
+            lang
+        } else {
+            self.get_detailed_message().unwrap()
+        }
+    }
+}
 
-#[derive(Default, serde::Deserialize, serde::Serialize)]
+pub struct AtomicLanguage(pub AtomicUsize);
+impl AtomicLanguage {
+    pub const fn new() -> Self {
+        Self(AtomicUsize::new(0))
+    }
+    pub fn get(&self) -> Language {
+        Language::from_repr(self.0.load(std::sync::atomic::Ordering::Relaxed)).unwrap()
+    }
+    pub fn set(&self, val: Language) {
+        self.0
+            .store(val.int(), std::sync::atomic::Ordering::Relaxed)
+    }
+}
+
+#[derive(Default, Deserialize, Serialize)]
 pub struct RangedVal<const MIN: isize, const MAX: isize>(pub isize);
 
 // #[derive(Default)]

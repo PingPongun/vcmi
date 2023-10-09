@@ -15,7 +15,6 @@ use egui::{
 };
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
-use parking_lot::RwLock;
 use rust_i18n::ToStringI18N;
 use std::future::Future;
 use std::sync::Arc;
@@ -24,8 +23,9 @@ use tokio::task::JoinHandle;
 
 use crate::about_project::FetchUpdate;
 use crate::first_launch::FirstLaunchState;
+use crate::settings::{AtomicLanguage, Settings};
+pub static LANGUAGE: AtomicLanguage = AtomicLanguage::new();
 use crate::platform::VDirs;
-use crate::settings::{Language, Settings};
 
 rust_i18n::i18n!("./translate", fallback = "en");
 #[derive(ToStringI18N, Default, PartialEq, Clone, Copy)]
@@ -40,7 +40,6 @@ pub enum TabName {
     MapEditor,
     StartGame,
 }
-pub static LANGUAGE: RwLock<Language<true>> = RwLock::new(Language::English);
 #[derive(Default)]
 pub struct VCMILauncher {
     pub dirs: VDirs,

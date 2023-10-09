@@ -8,14 +8,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+use indexmap::IndexSet;
+use parking_lot::RwLock;
 use egui::{InnerResponse, Ui, Widget};
 use rust_i18n::set_locale;
-use strum::{EnumMessage, IntoEnumIterator};
+use std::fmt::Display;
+use strum::IntoEnumIterator;
 
-use crate::{
-    settings::{Language, RangedVal},
-    vcmi_launcher::LANGUAGE,
-};
+use crate::settings::*;
+use crate::vcmi_launcher::*;
 
 #[macro_export]
 macro_rules! icon {
@@ -59,46 +60,59 @@ impl<const MIN: isize, const MAX: isize> DisplayGUI for RangedVal<MIN, MAX> {
 }
 
 lazy_static::lazy_static! {
-    static ref LANGUAGES_I18N: Vec<&'static str> =  Language::<true>::iter()
-        .map(|lang| lang.get_detailed_message().unwrap())
+    pub static ref GAME_LANGUAGES: RwLock<IndexMap<String,String>> =  RwLock::new(Language::iter()
+    .map(|lang| (lang.to_string(),lang.translated().to_owned()))
+    .filter(|(name, _translated_name)|!name.is_empty())
+    .chain(std::iter::once(("Auto".to_string(),"Auto".to_string())))
+    .collect());
+}
+lazy_static::lazy_static! {
+    static ref APP_LANGUAGES: Vec<String> =  Language::iter()
+        .map(|lang| lang.translated().to_owned())
+        .filter(|x|!x.is_empty())
         .collect();
 }
 lazy_static::lazy_static! {
-    static ref  LANGUAGES_SHORT: Vec<&'static str> = Language::<true>::iter()
-        .map(|lang| lang.get_message().unwrap())
-        .collect();
+    static ref  LANGUAGES_SHORT: Vec<String> = Language::iter()
+    .map(|lang| lang.short().to_owned())
+    .filter(|x|!x.is_empty())
+    .collect();
 }
-impl DisplayGUI for Language<false> {
+
+impl DisplayGUI for GameLanguage {
     fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
-        let mut idx = *self as usize;
+        let mut langs = GAME_LANGUAGES.write();
+        let mut current = if let Some(idx) = langs.get_index_of(&self.0) {
+            idx
+        } else {
+            langs.insert(self.0.clone(), self.0.clone());
+            langs.get_index_of(&self.0).unwrap()
+        };
         egui::Label::new(label).ui(ui);
-        egui::ComboBox::from_id_source(ui.next_auto_id()).show_index(
-            ui,
-            &mut idx,
-            LANGUAGES_I18N.len(),
-            |i| LANGUAGES_I18N[i],
-        );
-        if idx != *self as usize {
-            *self = Language::from_repr(idx).unwrap();
+        if egui::ComboBox::from_id_source(ui.next_auto_id())
+            .show_index(ui, &mut current, langs.len(), |i| &langs[i])
+            .changed()
+        {
+            *self = GameLanguage(langs.get_index(current).unwrap().0.clone());
             return true;
         }
         return false;
     }
 }
-impl DisplayGUI for Language<true> {
+impl DisplayGUI for Language {
     fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
-        let mut idx = *self as usize;
+        let mut idx = self.int();
+        if idx >= APP_LANGUAGES.len() {
+            idx = 0;
+        }
         egui::Label::new(label).ui(ui);
-        egui::ComboBox::from_id_source(ui.next_auto_id()).show_index(
-            ui,
-            &mut idx,
-            LANGUAGES_I18N.len(),
-            |i| LANGUAGES_I18N[i],
-        );
-        if idx != *self as usize {
+        if egui::ComboBox::from_id_source(ui.next_auto_id())
+            .show_index(ui, &mut idx, APP_LANGUAGES.len(), |i| &APP_LANGUAGES[i])
+            .changed()
+        {
             *self = Language::from_repr(idx).unwrap();
-            set_locale(LANGUAGES_SHORT[idx]);
-            *LANGUAGE.write() = self.clone();
+            set_locale(&LANGUAGES_SHORT[idx]);
+            LANGUAGE.set(self.clone());
             return true;
         }
         return false;
