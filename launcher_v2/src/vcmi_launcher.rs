@@ -15,11 +15,12 @@ use egui::{
 };
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
+use rust_i18n::{t, ToStringI18N};
 use std::time::Duration;
-use rust_i18n::ToStringI18N;
 
 use crate::about_project::VcmiUpdatesJson;
 use crate::first_launch::FirstLaunchState;
+use crate::mod_manager::ModMng;
 use crate::settings::Settings;
 use crate::utils::AsyncHandle;
 
@@ -42,10 +43,18 @@ pub struct VCMILauncher {
     pub first_launch: FirstLaunchState,
     pub tab: TabName,
     pub update_fetch: AsyncHandle<VcmiUpdatesJson, ()>,
+    pub mod_mng: ModMng,
     pub mobile_view: bool,
+    allowed_to_close: bool,
+    show_confirmation_dialog: bool,
 }
 
 impl eframe::App for VCMILauncher {
+    fn on_close_event(&mut self) -> bool {
+        self.show_confirmation_dialog = true;
+        self.allowed_to_close || !self.ongoing_ops()
+    }
+
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
@@ -61,10 +70,11 @@ impl eframe::App for VCMILauncher {
             let icon_size =
                 0.7 * (tab_panel_height - egui::TextStyle::Body.resolve(&ctx.style()).size);
 
+            //do not start game/editor (& quit launcher) when there are some ops running
+            let start_game_enabled = !self.mods_not_ready();
+
             let show_tabs = |mut strip: Strip<'_, '_>| {
                 let mut show_tab_button = |ui: &mut Ui, tab: TabName, enabled: bool| {
-                    ui.set_enabled(enabled);
-
                     const TAB_ICONS: [ImageSource; 7] = [
                         include_image!("../icons/menu-mods.png"),
                         include_image!("../icons/menu-downloads.png"),
@@ -75,7 +85,8 @@ impl eframe::App for VCMILauncher {
                         include_image!("../icons/menu-game.png"),
                     ];
                     if ui
-                        .add(
+                        .add_enabled(
+                            enabled,
                             ImageButton::new(
                                 Image::new(TAB_ICONS[tab as usize].clone())
                                     .fit_to_exact_size(Vec2::new(icon_size, icon_size)),
@@ -88,15 +99,16 @@ impl eframe::App for VCMILauncher {
                     }
                     ui.label(tab.to_string_i18n());
                 };
+
                 strip.cell(|ui| show_tab_button(ui, TabName::Mods, true));
                 strip.cell(|ui| show_tab_button(ui, TabName::Downloads, true));
                 strip.cell(|ui| show_tab_button(ui, TabName::Settings, true));
                 strip.cell(|ui| show_tab_button(ui, TabName::Lobby, true));
                 strip.cell(|ui| show_tab_button(ui, TabName::About, true));
                 if !cfg!(any(target_os = "android", target_os = "ios")) {
-                    strip.cell(|ui| show_tab_button(ui, TabName::MapEditor, true));
+                    strip.cell(|ui| show_tab_button(ui, TabName::MapEditor, start_game_enabled));
                 }
-                strip.cell(|ui| show_tab_button(ui, TabName::StartGame, true));
+                strip.cell(|ui| show_tab_button(ui, TabName::StartGame, start_game_enabled));
             };
 
             if self.mobile_view {
@@ -140,6 +152,29 @@ impl eframe::App for VCMILauncher {
             .direction(egui::Direction::BottomUp)
             // .custom_contents(kind, add_contents)
             .show(ctx);
+
+        if self.show_confirmation_dialog {
+            // Show confirmation dialog:
+            egui::Window::new( "Confirm exit" )
+            .collapsible(false)
+            .title_bar(false)
+            .resizable(false)
+            .show(ctx, |ui| {
+                ui.heading(t!(
+                    "general.Do you want to quit?\n Launcher is performing some background operations."
+                ));
+                ui.horizontal(|ui| {
+                    if ui.button(t!("_common.No")).clicked() {
+                        self.show_confirmation_dialog = false;
+                    }
+
+                    if ui.button(t!("_common.Yes")).clicked() || !self.ongoing_ops() {
+                        self.allowed_to_close = true;
+                        frame.close();
+                    }
+                });
+            });
+        }
         ctx.request_repaint_after(Duration::from_millis(500));
     }
 }
@@ -175,6 +210,9 @@ impl VCMILauncher {
 
         let mut ret = Self::default();
         ret.load_settings();
+        ret.mod_mng
+            .ops
+            .init_mods(*ret.settings.launcher.auto_check_repositories);
         if *ret.settings.launcher.update_on_startup {
             ret.spawn_update_check_vcmi();
         }

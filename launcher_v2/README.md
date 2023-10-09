@@ -6,15 +6,16 @@
 - uses Rust + egui (instead of C++ + Qt)
   - as the rest of project is in C++ this may be counted also as disadvantage
   - requires more time & disc space to build
-  - binary is larger (I guess it could be mitigated somehow, but it does it realy matters nowadays if total size is 20MB larger? (~5MB can be slashed by switching from "wgpu" to "glow" on eframe))
+  - binary is larger (I guess it could be mitigated somehow, but does it realy that matters nowadays if total size is 20MB larger? (~5MB can be slashed by switching from "wgpu" to "glow" on eframe))
   - GUI code is closely bound to normal code (immediate mode GUI)
   - no longer object oriented, more procedural aproach (code is more linear & can be easly followed & understood)
+  - non-native look&feel
   - all prons of Rust programing, including:
     - rustfmt: automatic code formater
     - cargo: zero-effort package managament
     - powerfull & ~simple macros
     - less error-prone
-    - less code (-3.5kloc in Java (-45%, whats left is mostly SDL), launcher from 4.5k in C++(not including *.ui files) to 1.7k in Rust (! Rust version is not yet feature full))
+    - less code (-3.5kloc in Java (-45%, whats left is mostly SDL), launcher from 4.5k in C++(not including *.ui files) to 3.3k in Rust (! Rust version is not yet feature full, but I guess that to reach feature parity it should close slighlty above 4k, and some of it is from "duplicating" some functionalities from vcmi_lib & android code))
 - low effort to add new settings to gui
 - friendlier translations format
 - dark mode
@@ -32,10 +33,9 @@
 
 - lobby
 - [Android] [iOS] select homm data location for copying
-- mod manager
 - preset mods
 - add missing settings
-- detect homm lang
+- detect homm lang (?)
 - [Android] check internal data hash, or store app version in settings.json (needed for iOS?)
 - better cmake integration:
   - don't require NDK env. variable when NDK installed from conan
@@ -46,7 +46,7 @@
 - Test on mac & ios
 - Check VDirs corectness & consistence with VCMI_dirs.cpp
 - reuse VCMI_dirs.cpp ???
-- advanced homm data verify
+- advanced homm data verify (?)
 - start client with args
 - migrate translations
 

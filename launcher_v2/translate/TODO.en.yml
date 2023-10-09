@@ -10,12 +10,71 @@ InitializationState.PresetMods: PresetMods
 InitializationState.ProcessingData: ProcessingData
 InitializationState.SetLanguage: SetLanguage
 InitializationState.Unknown: Unknown
+_common.Disable: Disable
+_common.Enable: Enable
+_common.Error: Error
+_common.Finished: Finished
+_common.No: No
+_common.Update: Update
+_common.Yes: Yes
 about.Download: Download
 about.User data directory: User data directory
 about.VCMI is up-to-date!: VCMI is up-to-date!
 about.VCMI update available!: VCMI update available!
 first_launch.Almost there...: ''
 first_launch.VCMI prepares necessary files.: ''
+general.Do you want to quit? Launcher is performing some background operations.: ''
+general.Failed to start game!: Failed to start game!
+general.Failed to start map editor!: Failed to start map editor!
+mod.Author: Author
+mod.Available languages: Available languages
+mod.Changelog: Changelog
+mod.Conflicting mods: Conflicting mods
+mod.Contact: Contact
+mod.Dependencies: Dependencies
+mod.Description: Description
+mod.Download size [MB]: Download size [MB]
+mod.Fetch remote: Fetch remote
+mod.Incompatible VCMI version!: Incompatible VCMI version!
+mod.Install: Install
+mod.License name: License name
+mod.Missing dependencies: Missing dependencies
+mod.Mod type: Mod type
+mod.ModOpType.FindUpdates: FindUpdates
+mod.ModOpType.InitMods: InitMods
+mod.ModOpType.Install: Install
+mod.ModOpType.Uninstall: Uninstall
+mod.ModOpType.Update: Update
+mod.ModSubOp.Downloading: Downloading
+mod.ModSubOp.Processing: Processing
+mod.ModSubOp.Unpacking: Unpacking
+mod.ModType.AI: AI
+mod.ModType.Artifacts: Artifacts
+mod.ModType.Creatures: Creatures
+mod.ModType.Expansion: Expansion
+mod.ModType.Graphical: Graphical
+mod.ModType.Heroes: Heroes
+mod.ModType.Interface: Interface
+mod.ModType.Maps: Maps
+mod.ModType.Mechanics: Mechanics
+mod.ModType.Music: Music
+mod.ModType.Objects: Objects
+mod.ModType.Other: Other
+mod.ModType.Skills: Skills
+mod.ModType.Sounds: Sounds
+mod.ModType.Spells: Spells
+mod.ModType.Templates: Templates
+mod.ModType.Test: Test
+mod.ModType.Town: Town
+mod.ModType.Translation: Translation
+mod.ModType.Utility: Utility
+mod.Name: Name
+mod.Uninstall: Uninstall
+mod.Version: Version
+mod.select.All: All
+mod.select.None: None
+mod.select.Select: Select
+mod.select.Selected: Selected
 settings.Settings.general: general
 settings.Settings.launcher: launcher
 settings.Settings.server: server
@@ -38,13 +97,24 @@ settings.SettingsServer.player_ai: player_ai
 settings.SettingsVideo.fullscreen: fullscreen
 settings.SettingsVideo.real_fullscreen: real_fullscreen
 settings.SettingsVideo.show_intro: show_intro
+toasts.error.Failed to open mod file!: Failed to open mod file!
+toasts.error.Failed to open settings file!: Failed to open settings file!
+toasts.error.Mod file corrupted!: Mod file corrupted!
 toasts.error.Prepare internal data failed!: Prepare internal data failed!
+toasts.error.Settings file corrupted!: Settings file corrupted!
+toasts.error.Settings save failed!: Settings save failed!
 toasts.error.Update check failed!: Update check failed!
 toasts.error.Valid HoMM data not found!: Valid HoMM data not found!
-toasts.error.settings_corrupted: settings_corrupted
-toasts.error.settings_open: settings_open
-toasts.error.settings_save: settings_save
 toasts.error.vcmi_data_verification_failed: vcmi_data_verification_failed
+toasts.mod.Mod initialization failed!: Mod initialization failed!
+toasts.mod.Mod install failed: Mod install failed
+toasts.mod.Mod installed: Mod installed
+toasts.mod.Mod uninstall failed: Mod uninstall failed
+toasts.mod.Mod uninstalled: Mod uninstalled
+toasts.mod.Mod update failed: Mod update failed
+toasts.mod.Mod updated: Mod updated
+toasts.mod.Mod updates check failed!: Mod updates check failed!
+toasts.mod.Mod updates list downloaded!: Mod updates list downloaded!
 toasts.success.HoMM data imported!: HoMM data imported!
 toasts.success.Internal data ready!: Internal data ready!
 toasts.success.Valid HoMM data found!: Valid HoMM data found!
