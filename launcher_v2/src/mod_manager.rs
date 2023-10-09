@@ -1069,6 +1069,9 @@ mod local {
         }
     }
     impl ModPath {
+        pub fn new(from: &str) -> Self {
+            ModPath([from.to_string()].to_vec())
+        }
         pub fn get_mod(&self) -> anyhow::Result<parking_lot::MappedRwLockReadGuard<'_, Mod>> {
             RwLockReadGuard::try_map(MODS.read_recursive(), |rwg| rwg.active_mods.get_mod(&self))
                 .map_err(|_| anyhow::Error::msg("Mod with requested mod path not found!"))

@@ -33,7 +33,6 @@
 
 - lobby
 - [Android] [iOS] select homm data location for copying
-- preset mods
 - add missing settings
 - detect homm lang (?)
 - [Android] check internal data hash, or store app version in settings.json (needed for iOS?)
