@@ -13,36 +13,34 @@
 use educe::Educe;
 use egui::{ScrollArea, Ui, Widget};
 use egui_toast::Toast;
-use fs_extra::error::{Error, ErrorKind};
+use indexmap::IndexMap;
 use rust_i18n::*;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_enum_str::Deserialize_enum_str;
 use serde_enum_str::Serialize_enum_str;
-use std::collections::HashMap;
 use std::ops::Deref;
 use std::ops::DerefMut;
 use std::sync::atomic::AtomicUsize;
-use std::path::Path;
 use strum::*;
 use vcmi_launcher_macros::*;
 
 use crate::gui_primitives::DisplayGUI;
-use crate::platform::{load_file, save_file};
+use crate::utils::*;
 use crate::vcmi_launcher::*;
 
 impl VCMILauncher {
     pub fn load_settings(&mut self) {
         log::info!("Loading config/settings file ...");
-        let path = self.dirs.settings.clone();
-        self.settings = load_file(&path);
+        let path = get_dirs().settings.clone();
+        self.settings = load_file_settings(&path);
 
         set_locale(self.settings.general.language.short());
         LANGUAGE.set(self.settings.general.language.clone());
 
         // check if homm data is present in vcmi dir
-        if let Err(err) =
-            check_data_dir_valid(&self.dirs.user_data).or(check_data_dir_valid(&self.dirs.internal))
+        if let Err(err) = check_data_dir_valid(&get_dirs().user_data)
+            .or(check_data_dir_valid(&get_dirs().internal))
         {
             if self.settings.launcher.setup_completed {
                 self.settings.launcher.setup_completed = false;
@@ -53,7 +51,7 @@ impl VCMILauncher {
     }
 
     pub fn save_settings(&mut self) {
-        let path = self.dirs.settings.clone();
+        let path = get_dirs().settings.clone();
         save_file(&path, &self.settings);
     }
 
@@ -79,7 +77,7 @@ pub struct Settings {
     pub launcher: SettingsLauncher,
     #[serde(flatten)] //capture/preserve not recognized fields
     #[skip]
-    extra: HashMap<String, serde_json::Value>,
+    extra: IndexMap<String, serde_json::Value>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, DisplayGUI, Educe)]
@@ -87,8 +85,8 @@ pub struct Settings {
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
 pub struct SettingsGeneral {
-    pub language: Language<true>,
-    pub game_data_language: Language<false>,
+    pub language: Language,
+    pub game_data_language: GameLanguage,
     #[educe(Default = 5)]
     autosave_count_limit: usize,
     #[educe(Default(expression = "RangedVal(50)"))]
@@ -97,7 +95,7 @@ pub struct SettingsGeneral {
     sound: RangedVal<0, 100>,
     #[serde(flatten)]
     #[skip]
-    extra: HashMap<String, serde_json::Value>,
+    extra: IndexMap<String, serde_json::Value>,
 }
 #[derive(Default, serde::Deserialize, serde::Serialize, DisplayGUI)]
 #[serde(default, rename_all = "camelCase")]
@@ -114,7 +112,7 @@ pub struct SettingsLauncher {
     pub setup_completed: bool,
     #[serde(flatten)]
     #[skip]
-    extra: HashMap<String, serde_json::Value>,
+    extra: IndexMap<String, serde_json::Value>,
 }
 #[derive(serde::Deserialize, serde::Serialize, DisplayGUI, Educe)]
 #[educe(Default)]
@@ -130,7 +128,7 @@ pub struct SettingsServer {
     enemy_ai: AIBattle,
     #[serde(flatten)]
     #[skip]
-    extra: HashMap<String, serde_json::Value>,
+    extra: IndexMap<String, serde_json::Value>,
 }
 #[derive(Default, serde::Deserialize, serde::Serialize, DisplayGUI)]
 #[serde(default, rename_all = "camelCase")]
@@ -143,7 +141,7 @@ pub struct SettingsVideo {
     // targetfps
     #[serde(flatten)]
     #[skip]
-    extra: HashMap<String, serde_json::Value>,
+    extra: IndexMap<String, serde_json::Value>,
 }
 
 ///////////////////////////////////////////////////////////////
@@ -276,39 +274,8 @@ enum AIAdventure {
     VCAI,
 }
 
-pub fn check_data_dir_valid(dir: &Path) -> fs_extra::error::Result<()> {
-    if !dir.is_dir() || !dir.exists() {
-        return Err(Error::new(ErrorKind::InvalidPath, ""));
-    }
-    let (mut data, mut mp3, mut maps) = Default::default();
-    if let Ok(entries) = std::fs::read_dir(dir) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                if entry.file_name().eq_ignore_ascii_case("data") {
-                    data = Some(entry.path());
-                }
-                if entry.file_name().eq_ignore_ascii_case("maps") {
-                    maps = Some(entry.path());
-                }
-                if entry.file_name().eq_ignore_ascii_case("mp3") {
-                    mp3 = Some(entry.path());
-                }
-            }
-        }
-    } //TODO handle err
-    if data == None || maps == None || mp3 == None {
-        return Err(Error::new(ErrorKind::NotFound, ""));
-    }
-    let lod = data.unwrap().join("H3bitmap.lod");
-    if !lod.exists() {
-        return Err(Error::new(ErrorKind::NotFound, ""));
-    }
-    //TODO ? more complex check
-    Ok(())
-}
-
 ///Same as bool but defaults to true
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Tbool(bool);
 
 impl Default for Tbool {

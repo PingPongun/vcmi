@@ -11,10 +11,12 @@
 
 use egui::{Color32, Ui};
 use egui_toast::Toast;
+use indexmap::IndexMap;
 use rust_i18n::t;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use crate::gui_primitives::EguiUiExt;
+use crate::utils::*;
 use crate::vcmi_launcher::*;
 
 impl VCMILauncher {
@@ -37,11 +39,11 @@ impl VCMILauncher {
             ui.label(VCMILauncher::version());
         });
         ui.group_wrapped(|ui| {
-            let _ = self.update_fetch.vcmi.if_running( &mut |_| {
+            let _ = self.update_fetch.if_running( &mut |_| {
                 ui.spinner();
             })
             || //using OR, couse it's shortcircutting so if_running is true, if success will not be executed
-            self.update_fetch.vcmi.if_success( &mut |json| {
+            self.update_fetch.if_success( &mut |json| {
                 if json.update_available() {
                     let color = match json.update_type {
                         VcmiUpdatesType::Minor => Color32::GRAY,
@@ -67,51 +69,33 @@ impl VCMILauncher {
         ui.heading(t!("about.Data Directories"));
         ui.group_wrapped(|ui| {
             ui.label(t!("about.Game data directory"));
-            ui.label(self.dirs.internal.to_string_lossy());
+            ui.label(get_dirs().internal.to_string_lossy());
         });
         ui.group_wrapped(|ui| {
             ui.label(t!("about.User data directory"));
-            ui.label(self.dirs.user_data.to_string_lossy());
+            ui.label(get_dirs().user_data.to_string_lossy());
         });
         ui.group_wrapped(|ui| {
             ui.label(t!("about.Log files directory"));
-            ui.label(self.dirs.log.parent().unwrap().to_string_lossy());
+            ui.label(get_dirs().log.parent().unwrap().to_string_lossy());
         });
     }
 
     pub fn spawn_update_check_vcmi(&mut self) {
         const CHECK_UPDATES_URL: &'static str =
-            // "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json";
-            "https://raw.githubusercontent.com/vcmi/vcmi-updates/vcmi-1.1.1/vcmi-updates.json";
-        self.update_fetch.vcmi.run(Arc::new(()), async {
-            match reqwest::get(CHECK_UPDATES_URL).await {
-                Err(err) => {
-                    Toast::error(t!("toasts.error.Update check failed!"));
-                    log::error!(
-                        "Unable to download vcmi-updates.json from: {}!; Error: {}",
-                        CHECK_UPDATES_URL,
-                        err
-                    );
-                    return Err(());
-                }
-                Ok(downloaded) => match downloaded.json::<VcmiUpdatesJson>().await {
-                    Ok(json) => {
-                        if json.update_available() {
-                            Toast::warning(t!("about.VCMI update available!"));
-                            log::info!("VCMI update available!",);
-                        } else {
-                            Toast::info(t!("about.VCMI is up-to-date!"));
-                            log::info!("VCMI is up-to-date!",);
-                        }
-                        Ok(json)
-                    }
-                    Err(err) => {
-                        Toast::error(t!("toasts.error.Update check failed!"));
-                        log::error!("Unable to parse vcmi-updates.json!; Error: {}", err);
-                        Err(())
-                    }
-                },
+            "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json";
+        self.update_fetch.run(Arc::new(()), async {
+            let json: VcmiUpdatesJson =
+                get_file_from_url(CHECK_UPDATES_URL, &t!("toasts.error.Update check failed!"))
+                    .await?;
+            if json.update_available() {
+                Toast::warning(t!("about.VCMI update available!"));
+                log::info!("VCMI update available!",);
+            } else {
+                Toast::info(t!("about.VCMI is up-to-date!"));
+                log::info!("VCMI is up-to-date!",);
             }
+            Ok(json)
         });
     }
 }
@@ -138,10 +122,10 @@ enum VcmiUpdatesType {
 }
 #[derive(Clone, serde::Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
-struct VcmiUpdatesJson {
+pub struct VcmiUpdatesJson {
     update_type: VcmiUpdatesType,
     version: String,
-    download_links: HashMap<String, String>,
+    download_links: IndexMap<String, String>,
     change_log: String,
     history: Vec<String>,
 }
@@ -202,8 +186,3 @@ impl VcmiUpdatesJson {
 // 		"VCMI 1.3.2"
 // 	]
 // }
-#[derive(Default)]
-pub struct FetchUpdate {
-    vcmi: AsyncHandle<VcmiUpdatesJson, ()>,
-    // mod_list: AsyncHandle<ModListUpdatesJson, ()>,
-}

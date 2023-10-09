@@ -15,7 +15,7 @@ use rust_i18n::{t, ToStringI18N};
 use std::sync::{atomic::Ordering, Arc};
 
 use crate::gui_primitives::{DisplayGUI, EguiUiExt};
-use crate::settings::check_data_dir_valid;
+use crate::utils::*;
 use crate::vcmi_launcher::*;
 
 impl VCMILauncher {
@@ -54,7 +54,7 @@ impl VCMILauncher {
     /////////////////////////////////////////////////////////////////
 
     fn first_launch_spawn_internal_data_cpy(&mut self) {
-        let extract_dest = self.dirs.internal.clone();
+        let extract_dest = get_dirs().internal.clone();
         self.first_launch
             .internal_data_cpy
             .run(Arc::new(()), async move {
@@ -89,7 +89,6 @@ impl VCMILauncher {
     #[cfg(all(not(target_os = "android"), not(target_os = "ios")))]
     fn first_launch_spawn_homm_data_cpy(&mut self) {
         let progress = Arc::new(AtomicHOMMDataState::new(HOMMDataState::NotSelected));
-        let dest = self.dirs.user_data.clone();
         self.first_launch
             .homm_data_cpy
             .run(progress.clone(), async move {
@@ -110,7 +109,7 @@ impl VCMILauncher {
                     progress.store(HOMMDataState::Found, Ordering::Relaxed);
                     let cpy_resoult = fs_extra::copy_items(
                         &[src.join("data"), src.join("maps"), src.join("mp3")],
-                        dest,
+                        get_dirs().user_data.clone(),
                         &fs_extra::dir::CopyOptions::new().overwrite(true),
                     );
                     if let Err(err) = cpy_resoult {
@@ -130,12 +129,11 @@ impl VCMILauncher {
     fn first_launch_spawn_homm_data_search(&mut self) {
         //check for homm data in vcmi dirs
         let progress = Arc::new(AtomicHOMMDataState::new(HOMMDataState::CheckingVCMIDirs));
-        let paths = (self.dirs.user_data.clone(), self.dirs.internal.clone());
         self.first_launch
             .homm_data_cpy
             .run(progress.clone(), async move {
-                if check_data_dir_valid(&paths.0).is_err()
-                    || check_data_dir_valid(&paths.1).is_err()
+                if check_data_dir_valid(&get_dirs().user_data.clone()).is_err()
+                    || check_data_dir_valid(&get_dirs().internal.clone()).is_err()
                 {
                     Toast::warning(t!("toasts.error.Valid HoMM data not found!"));
                     log::warn!("Valid HoMM data not found in VCMI dirs!",);
@@ -212,8 +210,8 @@ impl VCMILauncher {
             ui.label(t!("first_launch.VCMI data directories"));
             ui.separator();
             ui.vertical(|ui| {
-                ui.label(self.dirs.user_data.to_string_lossy());
-                ui.label(self.dirs.internal.to_string_lossy());
+                ui.label(get_dirs().user_data.to_string_lossy());
+                ui.label(get_dirs().internal.to_string_lossy());
             })
         });
         let homm_state = self.first_launch.homm_data_cpy.if_state(

@@ -16,16 +16,11 @@ use egui::{
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
 use rust_i18n::ToStringI18N;
-use std::future::Future;
-use std::sync::Arc;
-use tokio::runtime::Runtime;
-use tokio::task::JoinHandle;
 
-use crate::about_project::FetchUpdate;
+use crate::about_project::VcmiUpdatesJson;
 use crate::first_launch::FirstLaunchState;
-use crate::settings::{AtomicLanguage, Settings};
-pub static LANGUAGE: AtomicLanguage = AtomicLanguage::new();
-use crate::platform::VDirs;
+use crate::settings::Settings;
+use crate::utils::AsyncHandle;
 
 rust_i18n::i18n!("./translate", fallback = "en");
 #[derive(ToStringI18N, Default, PartialEq, Clone, Copy)]
@@ -42,11 +37,10 @@ pub enum TabName {
 }
 #[derive(Default)]
 pub struct VCMILauncher {
-    pub dirs: VDirs,
     pub settings: Settings,
     pub first_launch: FirstLaunchState,
     pub tab: TabName,
-    pub update_fetch: FetchUpdate,
+    pub update_fetch: AsyncHandle<VcmiUpdatesJson, ()>,
 }
 
 impl eframe::App for VCMILauncher {
@@ -146,7 +140,7 @@ impl eframe::App for VCMILauncher {
 
 impl VCMILauncher {
     /// Called once before the first frame.
-    pub fn new(cc: &eframe::CreationContext<'_>, dirs: VDirs) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let mut _out_of_window_size = Default::default(); //may be used to detect notch?
         if let Some(monitor_size) = cc.integration_info.window_info.monitor_size {
             _out_of_window_size = monitor_size - cc.integration_info.window_info.size;
@@ -173,92 +167,11 @@ impl VCMILauncher {
 
         egui_extras::install_image_loaders(&cc.egui_ctx);
 
-        let mut ret = Self {
-            dirs,
-            ..Default::default()
-        };
+        let mut ret = Self::default();
         ret.load_settings();
         if *ret.settings.launcher.update_on_startup {
             ret.spawn_update_check_vcmi();
         }
         ret
-    }
-}
-
-/////////////////////////////////////////////////////////////////
-///////////////////Async task handle management//////////////////
-/////////////////////////////////////////////////////////////////
-
-lazy_static::lazy_static! {
-    static ref RUNTIME: Runtime =  Runtime::new().unwrap();
-}
-
-#[derive(Default)]
-pub enum AsyncHandle<T: Send, P> {
-    #[default]
-    Uninit, // or Aborted
-    Running(JoinHandle<Result<T, ()>>, Arc<P>),
-    Finished(Result<T, ()>),
-}
-use AsyncHandle::*;
-
-impl<T: Send + 'static, P> AsyncHandle<T, P> {
-    pub fn run<F>(&mut self, progress: Arc<P>, future: F)
-    where
-        F: Future<Output = Result<T, ()>> + Send + 'static,
-    {
-        if !matches!(self, Running(_, _)) {
-            *self = Running(RUNTIME.spawn(future), progress);
-        }
-    }
-    pub fn fetch_handle(&mut self) {
-        if let Running(handle, _) = self {
-            if handle.is_finished() {
-                *self = Finished(RUNTIME.block_on(handle).unwrap_or(Err(())))
-            }
-        }
-    }
-    pub fn is_finished(&mut self) -> bool {
-        self.fetch_handle();
-        matches!(self, Finished(_))
-    }
-    pub fn is_success(&mut self) -> bool {
-        self.fetch_handle();
-        matches!(self, Finished(Ok(_)))
-    }
-    pub fn is_failure(&mut self) -> bool {
-        self.fetch_handle();
-        matches!(self, Finished(Err(())))
-    }
-    pub fn if_running(&mut self, op: &mut dyn FnMut(Arc<P>)) -> bool {
-        self.fetch_handle();
-        if let Running(_, progress) = self {
-            op(progress.clone());
-            return true;
-        }
-        false
-    }
-    pub fn if_success(&mut self, op: &mut dyn FnMut(&mut T)) -> bool {
-        self.fetch_handle();
-        if let Finished(Ok(result)) = self {
-            op(result);
-            return true;
-        }
-        false
-    }
-    pub fn if_state<R>(
-        &mut self,
-        running_op: &mut dyn FnMut(Arc<P>) -> R,
-        success_op: &mut dyn FnMut(&mut T) -> R,
-        failed_op: &mut dyn FnMut() -> R,
-        uninit: &mut dyn FnMut() -> R,
-    ) -> R {
-        self.fetch_handle();
-        match self {
-            Finished(Ok(result)) => success_op(result),
-            Finished(Err(_)) => failed_op(),
-            Uninit => uninit(),
-            Running(_, progress) => running_op(progress.clone()),
-        }
     }
 }

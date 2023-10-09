@@ -16,6 +16,7 @@ mod lobby;
 mod mod_manager;
 mod platform;
 mod settings;
+mod utils;
 mod vcmi_launcher;
 
 use std::path::Path;
@@ -24,6 +25,7 @@ use std::{fs, io};
 use eframe::{IconData, NativeOptions, Renderer};
 use log::error;
 use platform::{NativeParams, VDirs};
+use utils::get_dirs;
 use vcmi_launcher::*;
 #[cfg(target_os = "android")]
 use winit::platform::android::activity::AndroidApp;
@@ -90,8 +92,8 @@ fn logging_setup(log_path: &Path) {
 }
 
 fn _main(mut options: NativeOptions, native: NativeParams) {
-    let dirs = VDirs::new(native.clone());
-    logging_setup(&dirs.log);
+    VDirs::init(native.clone());
+    logging_setup(&get_dirs().log);
     options.renderer = Renderer::Wgpu;
     // options.renderer = Renderer::Glow;
 
@@ -110,7 +112,7 @@ fn _main(mut options: NativeOptions, native: NativeParams) {
     let _ = eframe::run_native(
         "VCMI Launcher",
         options,
-        Box::new(|cc| Box::new(VCMILauncher::new(cc, dirs))),
+        Box::new(|cc| Box::new(VCMILauncher::new(cc))),
     )
     .unwrap_or_else(|err| {
         log::error!("Failure while running EFrame application: {err:?}");

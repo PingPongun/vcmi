@@ -13,12 +13,11 @@ use std::process::Command;
 
 use egui_toast::Toast;
 use rust_i18n::t;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
 #[cfg(target_os = "ios")]
 use std::ffi::c_char;
 #[cfg(target_os = "ios")]
 use std::ffi::c_int;
+use std::sync::OnceLock;
 #[cfg(target_os = "android")]
 use winit::platform::android::activity::AndroidApp;
 
@@ -32,7 +31,9 @@ pub struct NativeParams(pub AndroidApp);
 #[derive(Clone)]
 pub struct NativeParams();
 
-#[derive(Default, Clone, serde::Deserialize, serde::Serialize)]
+pub static VDIRS: OnceLock<VDirs> = OnceLock::new();
+
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 pub struct VDirs {
     pub internal: PathBuf,
     pub user_cache: PathBuf,
@@ -48,13 +49,12 @@ pub struct VDirs {
 }
 
 impl VDirs {
-    pub fn new(_native: NativeParams) -> VDirs {
-        let _development_mode = Path::new("vcmiserver").exists()
+    pub fn init(_native: NativeParams) {
+        let _development_mode: bool = Path::new("vcmiserver").exists()
             && Path::new("vcmiclient").exists()
             && Path::new("Mods").exists()
             && Path::new("config").exists()
             && Path::new("AI").exists();
-
         #[cfg(target_os = "windows")]
         {
             let user_data = directories::UserDirs::new()
@@ -67,7 +67,7 @@ impl VDirs {
                 .unwrap(); //TODO handle Err
             let internal = Path::new(".").canonicalize().unwrap().to_path_buf();
             let user_config = user_data.join("config");
-            VDirs {
+            _ = VDIRS.set(VDirs {
                 settings: user_config.join("settings.json"),
                 settings_mod: user_config.join("modSettings.json"),
                 internal_mods: internal.join("Mods"),
@@ -78,7 +78,7 @@ impl VDirs {
                 internal,
                 user_config,
                 user_data,
-            }
+            });
         }
         #[cfg(target_os = "linux")]
         {
@@ -109,7 +109,7 @@ impl VDirs {
                     .canonicalize()
                     .unwrap()
             };
-            VDirs {
+            _ = VDIRS.set(VDirs {
                 settings: user_config.join("settings.json"),
                 settings_mod: user_config.join("modSettings.json"),
                 internal_mods: internal.join("Mods"),
@@ -124,7 +124,7 @@ impl VDirs {
                 user_cache,
                 user_config,
                 user_data,
-            }
+            });
         }
         #[cfg(target_os = "macos")]
         {
@@ -146,7 +146,7 @@ impl VDirs {
                     .unwrap()
             };
             let user_config = user_data.join("config");
-            VDirs {
+            _ = VDIRS.set(VDirs {
                 settings: user_config.join("settings.json"),
                 settings_mod: user_config.join("modSettings.json"),
                 internal_mods: internal.join("Mods"),
@@ -161,7 +161,7 @@ impl VDirs {
                 user_cache,
                 user_config,
                 user_data,
-            }
+            });
         }
         #[cfg(target_os = "android")]
         {
@@ -181,7 +181,7 @@ impl VDirs {
                 .unwrap();
             let user_cache = user_data.join("cache");
             let user_config = user_data.join("config");
-            VDirs {
+            _ = VDIRS.set(VDirs {
                 settings: user_config.join("settings.json"),
                 settings_mod: user_config.join("modSettings.json"),
                 internal_mods: internal.join("Mods"),
@@ -192,7 +192,7 @@ impl VDirs {
                 user_cache,
                 user_config,
                 user_data,
-            }
+            });
         }
         #[cfg(target_os = "ios")]
         {
@@ -211,7 +211,7 @@ impl VDirs {
                 .unwrap(); //TODO handle Err
             let internal = Path::new(".").to_path_buf().canonicalize().unwrap(); // ???
             let user_config = user_data.join("config");
-            VDirs {
+            _ = VDIRS.set(VDirs {
                 settings: user_config.join("settings.json"),
                 settings_mod: user_config.join("modSettings.json"),
                 internal_mods: internal.join("Mods"),
@@ -222,7 +222,7 @@ impl VDirs {
                 user_cache,
                 user_config,
                 user_data,
-            }
+            });
         }
     }
 }
@@ -294,52 +294,6 @@ impl VCMILauncher {
         {
             // Map editor works only on desktop
             unreachable!()
-        }
-    }
-}
-pub fn load_file<T: DeserializeOwned + Default>(path: &Path) -> T {
-    match std::fs::File::open(path) {
-        Ok(file) => match serde_json::from_reader(file) {
-            Err(err) => {
-                Toast::error(t!("toasts.error.settings_corrupted"));
-                log::error!(
-                    "Deserialization from file: {} failed!; Error: {}",
-                    path.display(),
-                    err
-                );
-                Default::default()
-            }
-            Ok(loaded) => loaded,
-        },
-        Err(err) => match err.kind() {
-            std::io::ErrorKind::NotFound => Default::default(), //this error should be silenced, as it is normal on first launch that file is yet created
-            _ => {
-                Toast::error(t!("toasts.error.settings_open"));
-                log::error!("Open file: {} failed!; Error: {}", path.display(), err);
-                Default::default()
-            }
-        },
-    }
-}
-pub fn save_file<T: ?Sized + Serialize>(path: &Path, data: &T) {
-    match std::fs::File::create(&path) {
-        Ok(file) => {
-            if let Err(err) = serde_json::to_writer_pretty(file, data) {
-                Toast::error(t!("toasts.error.settings_save"));
-                log::error!(
-                    "Serialization to file: {} failed!; Error: {}",
-                    path.display(),
-                    err
-                )
-            }
-        }
-        Err(err) => {
-            Toast::error(t!("toasts.error.settings_save"));
-            log::error!(
-                "Open file: {} for writing failed!; Error: {}",
-                path.display(),
-                err
-            )
         }
     }
 }

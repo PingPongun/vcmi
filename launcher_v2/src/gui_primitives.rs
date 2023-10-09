@@ -16,7 +16,8 @@ use std::fmt::Display;
 use strum::IntoEnumIterator;
 
 use crate::settings::*;
-use crate::vcmi_launcher::*;
+use crate::utils::hash_helper::IndexMap;
+use crate::utils::*;
 
 #[macro_export]
 macro_rules! icon {
