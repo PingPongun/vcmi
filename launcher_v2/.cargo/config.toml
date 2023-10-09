@@ -13,6 +13,6 @@ rmacarm = "bmacarm --release"
 rios = "bios --release"
 randroid = "bandroid --release"
 
-r = "run --features=desktop"
+r = "run --features=desktop --bin vcmilauncherv2"
 rr = "r --profile RelWithDebInfo"
 rrr = "r --release"

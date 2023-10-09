@@ -20,7 +20,7 @@ use crate::utils::*;
 use crate::vcmi_launcher::*;
 
 impl VCMILauncher {
-    fn version() -> String {
+    pub fn version() -> String {
         #[cfg(feature = "enable_gitversion")]
         let mut m = ["VCMI ", env!("CARGO_PKG_VERSION")].join("");
         {

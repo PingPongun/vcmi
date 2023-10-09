@@ -15,6 +15,7 @@ use egui::{
 };
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
+use std::time::Duration;
 use rust_i18n::ToStringI18N;
 
 use crate::about_project::VcmiUpdatesJson;
@@ -41,6 +42,7 @@ pub struct VCMILauncher {
     pub first_launch: FirstLaunchState,
     pub tab: TabName,
     pub update_fetch: AsyncHandle<VcmiUpdatesJson, ()>,
+    pub mobile_view: bool,
 }
 
 impl eframe::App for VCMILauncher {
@@ -48,6 +50,7 @@ impl eframe::App for VCMILauncher {
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         let screen_size = ctx.screen_rect().size();
+        self.mobile_view = screen_size.y > screen_size.x;
         if self.settings.launcher.setup_completed {
             let tab_count = if cfg!(any(target_os = "android", target_os = "ios")) {
                 6
@@ -96,10 +99,11 @@ impl eframe::App for VCMILauncher {
                 strip.cell(|ui| show_tab_button(ui, TabName::StartGame, true));
             };
 
-            if screen_size.y > screen_size.x {
+            if self.mobile_view {
+                //mobile view
                 egui::TopBottomPanel::bottom("tabs_panel")
                     .exact_height(tab_panel_height + 6.)
-                    .show(ctx, |ui: &mut egui::Ui| {
+                    .show(ctx, |ui| {
                         ui.add_space(6.0);
                         StripBuilder::new(ui)
                             .sizes(Size::remainder(), tab_count)
@@ -107,9 +111,10 @@ impl eframe::App for VCMILauncher {
                             .horizontal(show_tabs);
                     });
             } else {
+                //desktop view
                 egui::SidePanel::left("tabs_panel")
                     .exact_width(tab_panel_height)
-                    .show(ctx, |ui: &mut egui::Ui| {
+                    .show(ctx, |ui| {
                         StripBuilder::new(ui)
                             .sizes(Size::remainder(), tab_count)
                             .cell_layout(Layout::top_down(Align::Center))
@@ -135,6 +140,7 @@ impl eframe::App for VCMILauncher {
             .direction(egui::Direction::BottomUp)
             // .custom_contents(kind, add_contents)
             .show(ctx);
+        ctx.request_repaint_after(Duration::from_millis(500));
     }
 }
 

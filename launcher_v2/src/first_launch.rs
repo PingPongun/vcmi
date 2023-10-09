@@ -72,7 +72,7 @@ impl VCMILauncher {
                             extract_dest.display(),
                             err
                         );
-                        return Err(());
+                        return Err(err.into());
                     }
                     Toast::success(t!("toasts.success.Internal data ready!"));
                     log::info!(
@@ -102,7 +102,7 @@ impl VCMILauncher {
                             "Selected path does not contain valid HoMM data!; Error: {}",
                             err
                         );
-                        return Err(());
+                        return Err(err.into());
                     }
                     Toast::success(t!("toasts.success.Valid HoMM data found!"));
                     log::info!("Valid HoMM data found!");
@@ -115,13 +115,13 @@ impl VCMILauncher {
                     if let Err(err) = cpy_resoult {
                         Toast::error(t!("toasts.error.HoMM data copy failed!"));
                         log::error!("HoMM data copy failed!; Error: {}", err);
-                        return Err(());
+                        return Err(err.into());
                     }
                     Toast::success(t!("toasts.success.HoMM data imported!"));
                     log::info!("HoMM data imported!");
                     Ok(())
                 } else {
-                    Err(())
+                    anyhow::bail!("Failed to create dialog!")
                 }
             })
     }
@@ -138,7 +138,7 @@ impl VCMILauncher {
                     Toast::warning(t!("toasts.error.Valid HoMM data not found!"));
                     log::warn!("Valid HoMM data not found in VCMI dirs!",);
                     progress.store(HOMMDataState::NotSelected, Ordering::Relaxed);
-                    Err(())
+                    anyhow::bail!("Valid HoMM data not found in VCMI dirs!")
                 } else {
                     Toast::success(t!("toasts.success.Valid HoMM data found!"));
                     log::info!("Valid HoMM data found in VCMI dirs!");

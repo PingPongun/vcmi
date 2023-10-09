@@ -11,12 +11,12 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=vcmi_launcher_v2",
+                    "--bin=vcmilauncherv2",
                     "--package=vcmi_launcher_v2",
                     "--features=desktop"
                 ],
                 "filter": {
-                    "name": "vcmi_launcher_v2",
+                    "name": "vcmilauncherv2",
                     "kind": "bin"
                 }
             },

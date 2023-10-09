@@ -24,7 +24,7 @@ macro_rules! icon {
     ($ui:ident,$path: literal) => {
         $ui.add(
             egui::Image::new(egui::include_image!($path))
-                .max_height($ui.text_style_height(&egui::TextStyle::Body))
+                .fit_to_exact_size([$ui.text_style_height(&egui::TextStyle::Body); 2].into())
                 .sense(egui::Sense::click()),
         )
     };

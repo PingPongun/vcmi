@@ -66,7 +66,7 @@ impl VCMILauncher {
     }
 }
 
-#[derive(Default, serde::Deserialize, serde::Serialize, DisplayGUI)]
+#[derive(Default, Deserialize, Serialize, DisplayGUI)]
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
 #[uncollapsed]
@@ -80,7 +80,7 @@ pub struct Settings {
     extra: IndexMap<String, serde_json::Value>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize, DisplayGUI, Educe)]
+#[derive(Deserialize, Serialize, DisplayGUI, Educe)]
 #[educe(Default)]
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
@@ -97,7 +97,7 @@ pub struct SettingsGeneral {
     #[skip]
     extra: IndexMap<String, serde_json::Value>,
 }
-#[derive(Default, serde::Deserialize, serde::Serialize, DisplayGUI)]
+#[derive(Default, Deserialize, Serialize, DisplayGUI)]
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
 pub struct SettingsLauncher {
@@ -114,7 +114,7 @@ pub struct SettingsLauncher {
     #[skip]
     extra: IndexMap<String, serde_json::Value>,
 }
-#[derive(serde::Deserialize, serde::Serialize, DisplayGUI, Educe)]
+#[derive(Deserialize, Serialize, DisplayGUI, Educe)]
 #[educe(Default)]
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
@@ -130,7 +130,7 @@ pub struct SettingsServer {
     #[skip]
     extra: IndexMap<String, serde_json::Value>,
 }
-#[derive(Default, serde::Deserialize, serde::Serialize, DisplayGUI)]
+#[derive(Default, Deserialize, Serialize, DisplayGUI)]
 #[serde(default, rename_all = "camelCase")]
 #[module(settings)]
 pub struct SettingsVideo {
@@ -255,18 +255,14 @@ pub struct RangedVal<const MIN: isize, const MAX: isize>(pub isize);
 //     }
 // }
 
-#[derive(
-    Default, Clone, Copy, serde::Deserialize, serde::Serialize, FromRepr, EnumComboboxI18N,
-)]
+#[derive(Default, Clone, Copy, Deserialize, Serialize, FromRepr, EnumComboboxI18N)]
 #[module(settings.SettingsServer)]
 enum AIBattle {
     #[default]
     BattleAI,
     StupidAI,
 }
-#[derive(
-    Default, Clone, Copy, serde::Deserialize, serde::Serialize, FromRepr, EnumComboboxI18N,
-)]
+#[derive(Default, Clone, Copy, Deserialize, Serialize, FromRepr, EnumComboboxI18N)]
 #[module(settings.SettingsServer)]
 enum AIAdventure {
     #[default]

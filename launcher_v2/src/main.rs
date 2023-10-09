@@ -23,6 +23,7 @@ use std::path::Path;
 use std::{fs, io};
 
 use eframe::{IconData, NativeOptions, Renderer};
+use egui::Vec2;
 use log::error;
 use platform::{NativeParams, VDirs};
 use utils::get_dirs;
@@ -54,7 +55,7 @@ fn logging_setup(log_path: &Path) {
                 // by default only accept warn messages
                 .level(log::LevelFilter::Warn)
                 // accept info messages from the current crate too
-                .level_for("vcmi_launcher_v2", log::LevelFilter::Info) //TODO ULP switch to Trace in debug
+                .level_for("vcmilauncherv2", log::LevelFilter::Info) //TODO ULP switch to Trace in debug
                 .chain(io::stdout()),
         );
         // stderr logging
@@ -77,7 +78,7 @@ fn logging_setup(log_path: &Path) {
                     // by default only accept warn messages
                     .level(log::LevelFilter::Warn)
                     // accept info messages from the current crate too
-                    .level_for("vcmi_launcher_v2", log::LevelFilter::Info) //TODO ULP switch to Trace in debug
+                    .level_for("vcmilauncherv2", log::LevelFilter::Info) //TODO ULP switch to Trace in debug
                     .chain(log_file),
             );
             // and finally, set as the global logger!
@@ -96,6 +97,7 @@ fn _main(mut options: NativeOptions, native: NativeParams) {
     logging_setup(&get_dirs().log);
     options.renderer = Renderer::Wgpu;
     // options.renderer = Renderer::Glow;
+    options.initial_window_size = Some(Vec2::new(800., 500.));
 
     let icon_raw = include_bytes!("../icons/VCMI_launcher.ico");
     let icon = image::load_from_memory_with_format(icon_raw.as_slice(), image::ImageFormat::Ico)
@@ -147,12 +149,6 @@ fn android_main(app: AndroidApp) {
 #[cfg(all(not(target_os = "android"), not(target_os = "ios")))]
 #[allow(dead_code)]
 fn main() {
-    // env_logger::builder()
-    //     .filter_level(log::LevelFilter::Info) // Default Log Level
-    //     .parse_default_env()
-    //     .init();
-
-    // let _ =
     _main(NativeOptions::default(), NativeParams());
 }
 #[cfg(target_os = "ios")]
@@ -161,11 +157,5 @@ fn main() {
 #[allow(dead_code)]
 //qt_main_wrapper should be changed for sth diferent e.g. ios_launcher_main, but it requires also change in client/ios/main.m
 extern "C" fn qt_main_wrapper(_argc: std::ffi::c_int, _argv: *const *const std::ffi::c_char) {
-    // env_logger::builder()
-    //     .filter_level(log::LevelFilter::Info) // Default Log Level
-    //     .parse_default_env()
-    //     .init();
-
-    // let _ =
     _main(NativeOptions::default(), NativeParams());
 }

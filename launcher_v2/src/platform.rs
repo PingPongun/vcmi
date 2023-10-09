@@ -236,11 +236,17 @@ extern "C" {
 
 impl VCMILauncher {
     pub fn start_game(&mut self, _frame: &mut eframe::Frame) {
+        log::info!("starting game");
         self.tab = TabName::Mods;
         #[cfg(not(any(target_os = "android", target_os = "ios")))]
         {
-            Command::new("./VCMI_client").spawn();
-            _frame.close();
+            match Command::new("./VCMI_client").spawn() {
+                Err(err) => {
+                    log::error!("Failed to start game; err: {}", err);
+                    Toast::error(t!("general.Failed to start game!"))
+                }
+                Ok(_) => _frame.close(),
+            }
         }
 
         #[cfg(target_os = "android")]
@@ -260,7 +266,6 @@ impl VCMILauncher {
                 log::error!("Thread atach to VM has failed");
                 panic!()
             };
-            log::info!("starting game");
             env.call_method(context, "onLaunchGameBtnPressed", "()V", &[]);
             log::info!("game client started");
         }
@@ -286,9 +291,15 @@ impl VCMILauncher {
     pub fn start_map_editor(&mut self, _frame: &mut eframe::Frame) {
         #[cfg(not(any(target_os = "android", target_os = "ios")))]
         {
+            log::info!("starting map editor");
             self.tab = TabName::Mods;
-            Command::new("./VCMI_mapeditor").spawn();
-            _frame.close();
+            match Command::new("./VCMI_mapeditor").spawn() {
+                Err(err) => {
+                    log::error!("Failed to start map editor; err: {}", err);
+                    Toast::error(t!("general.Failed to start map editor!"))
+                }
+                Ok(_) => _frame.close(),
+            }
         }
         #[cfg(any(target_os = "android", target_os = "ios"))]
         {
