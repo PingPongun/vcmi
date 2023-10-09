@@ -133,7 +133,7 @@ impl VCMILauncher {
             .homm_data_cpy
             .run(progress.clone(), async move {
                 if check_data_dir_valid(&get_dirs().user_data.clone()).is_err()
-                    || check_data_dir_valid(&get_dirs().internal.clone()).is_err()
+                    && check_data_dir_valid(&get_dirs().internal.clone()).is_err()
                 {
                     Toast::warning(t!("toasts.error.Valid HoMM data not found!"));
                     log::warn!("Valid HoMM data not found in VCMI dirs!",);

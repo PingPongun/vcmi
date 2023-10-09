@@ -974,7 +974,7 @@ mod local {
                 // }
                 if ModType::Translation == mod_file.mod_type {
                     let lang = mod_file.language.to_string();
-                    GAME_LANGUAGES.write().insert(lang.clone(), lang);
+                    GAME_LANGUAGES.write().entry(lang.clone()).or_insert(lang);
                 }
                 mv.mod_file = mod_file;
 

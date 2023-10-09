@@ -1,14 +1,37 @@
 _version: 1
+HOMMDataState.CheckingSelectedPath: Checking selected path
+HOMMDataState.CheckingVCMIDirs: Checking VCMI dirs
+HOMMDataState.Found: Found
+HOMMDataState.NotFound: Not found
+HOMMDataState.NotSelected: Not selected
+InitializationState.Finished: Finished
+InitializationState.GetHoMMData: Get HoMM data
+InitializationState.PresetMods: Preset mods
+InitializationState.ProcessingData: Processing data
+InitializationState.SetLanguage: Set language
+InitializationState.Unknown: Unknown
+_common.Disable: Disable
+_common.Enable: Enable
+_common.Error: Error
+_common.Finished: Finished
+_common.No: No
+_common.Update: Update
+_common.Yes: Yes
 about.Build Information: Build Information
 about.Check for updates: Check for updates
 about.Data Directories: Data Directories
+about.Download: Download
 about.Game Version: Game Version
 about.Game data directory: Game data directory
 about.Log files directory: Log files directory
 about.Operating System: Operating System
 about.Our Community: Our Community
 about.Report a bug: Report a bug
+about.User data directory: User data directory
+about.VCMI is up-to-date!: VCMI is up-to-date!
+about.VCMI update available!: VCMI update available!
 about.join_us: Have a question? Found a bug? Want to help? Join us!
+first_launch.Almost there...: Almost there...
 first_launch.HintVCMIBuilder: If you don't have a copy of Heroes III installed, you can use our automatic installation tool "vcmibuilder", which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.
 first_launch.Locate Heroes III data files: Locate Heroes III data files
 first_launch.Next: Next
@@ -19,6 +42,7 @@ first_launch.SelectHommDataLocation: Alternatively, you can provide the director
 first_launch.SelectHommDataLocationBtn: Select HOMM data directory
 first_launch.VCMI data directories: VCMI data directories
 first_launch.VCMI data state: VCMI data state
+first_launch.VCMI prepares necessary files.: VCMI prepares necessary files.
 first_launch.intro_message: |
   Thank you for installing VCMI!
 
@@ -27,6 +51,14 @@ first_launch.intro_message: |
   Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
   Heroes® of Might and Magic® III HD is currently not supported!
+first_launch.preset.Install some mods now: Install some mods now...
+first_launch.preset.Or install them later from "Mods" tab: '...or install them later from "Mods" tab'
+first_launch.preset.hota_text: Install compatible version of "Horn of the Abyss", a fan-made Heroes III expansion ported by the VCMI team
+first_launch.preset.vcmi_extras_text: Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles
+first_launch.preset.wog_text: Install compatible version of "In The Wake of Gods", a fan-made Heroes III expansion
+general.Are you sure you want to quit? Launcher is performing some background operations.: Are you sure you want to quit? Launcher is performing some background operations.
+general.Failed to start game!: Failed to start game!
+general.Failed to start map editor!: Failed to start map editor!
 menu.TabName.About: About VCMI
 menu.TabName.Downloads: Downloads
 menu.TabName.Lobby: Lobby
@@ -34,6 +66,86 @@ menu.TabName.MapEditor: Map editor
 menu.TabName.Mods: Mods
 menu.TabName.Settings: Settings
 menu.TabName.StartGame: Start game
+mod.Author: Author
+mod.Available languages: Available languages
+mod.Changelog: Changelog
+mod.Conflicting mods: Conflicting mods
+mod.Contact: Contact
+mod.Dependencies: Dependencies
+mod.Description: Description
+mod.Download size [MB]: Download size [MB]
+mod.Fetch remote: Fetch remote
+mod.Incompatible VCMI version!: Incompatible VCMI version!
+mod.Install: Install
+mod.License name: License name
+mod.Missing dependencies: Missing dependencies
+mod.Mod type: Mod type
+mod.ModOpType.FindUpdates: Find updates
+mod.ModOpType.InitMods: Init mods
+mod.ModOpType.Install: Install
+mod.ModOpType.Uninstall: Uninstall
+mod.ModOpType.Update: Update
+mod.ModSubOp.Downloading: Downloading
+mod.ModSubOp.Processing: Processing
+mod.ModSubOp.Unpacking: Unpacking
+mod.ModType.AI: AI
+mod.ModType.Artifacts: Artifacts
+mod.ModType.Creatures: Creatures
+mod.ModType.Expansion: Expansion
+mod.ModType.Graphical: Graphical
+mod.ModType.Heroes: Heroes
+mod.ModType.Interface: Interface
+mod.ModType.Maps: Maps
+mod.ModType.Mechanics: Mechanics
+mod.ModType.Music: Music
+mod.ModType.Objects: Objects
+mod.ModType.Other: Other
+mod.ModType.Skills: Skills
+mod.ModType.Sounds: Sounds
+mod.ModType.Spells: Spells
+mod.ModType.Templates: Templates
+mod.ModType.Test: Test
+mod.ModType.Town: Town
+mod.ModType.Translation: Translation
+mod.ModType.Utility: Utility
+mod.Name: Name
+mod.Uninstall: Uninstall
+mod.Version: Version
+mod.select.All: All
+mod.select.None: None
+mod.select.Select: Select
+mod.select.Selected: Selected
+settings.SettingsGeneral.game_data_language: Game data language
 settings.SettingsGeneral.language: VCMI language
+settings.SettingsServer.AIAdventure.Nullkiller: Nullkiller
+settings.SettingsServer.AIAdventure.VCAI: VCAI
+settings.SettingsServer.AIBattle.BattleAI: BattleAI
+settings.SettingsServer.AIBattle.StupidAI: StupidAI
+settings.SettingsServer.allied_ai: Allied AI
+settings.SettingsServer.enemy_ai: Enemy AI
+settings.SettingsServer.friendly_ai: Friendly AI
+settings.SettingsServer.neutral_ai: Neutral AI
+settings.SettingsServer.player_ai: Player AI
+toasts.error.Failed to open mod file!: Failed to open mod file!
+toasts.error.Failed to open settings file!: Failed to open settings file!
 toasts.error.HoMM data copy failed!: HoMM data copy failed!
+toasts.error.HoMM data not found!: HoMM data not found!
+toasts.error.Mod file corrupted!: Mod file corrupted!
+toasts.error.Prepare internal data failed!: Prepare internal data failed!
+toasts.error.Settings file corrupted!: Settings file corrupted!
+toasts.error.Settings save failed!: Settings save failed!
+toasts.error.Update check failed!: Update check failed!
+toasts.error.Valid HoMM data not found!: Valid HoMM data not found!
+toasts.mod.Mod initialization failed!: Mod initialization failed!
+toasts.mod.Mod install failed: Mod install failed
+toasts.mod.Mod installed: Mod installed
+toasts.mod.Mod uninstall failed: Mod uninstall failed
+toasts.mod.Mod uninstalled: Mod uninstalled
+toasts.mod.Mod update failed: Mod update failed
+toasts.mod.Mod updated: Mod updated
+toasts.mod.Mod updates check failed!: Mod updates check failed!
+toasts.mod.Mod updates list downloaded!: Mod updates list downloaded!
+toasts.success.HoMM data imported!: HoMM data imported!
+toasts.success.Internal data ready!: Internal data ready!
+toasts.success.Valid HoMM data found!: Valid HoMM data found!
 

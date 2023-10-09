@@ -44,7 +44,7 @@ impl VCMILauncher {
         {
             if self.settings.launcher.setup_completed {
                 self.settings.launcher.setup_completed = false;
-                Toast::error(t!("toasts.error.vcmi_data_verification_failed"));
+                Toast::error(t!("toasts.error.HoMM data not found!"));
                 log::error!("Failed to verify vcmi data!; Error: {}", err)
             }
         }
@@ -182,8 +182,14 @@ pub enum Language {
     Other(String), //add other languages
 }
 
-#[derive(Clone, Default, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct GameLanguage(pub String);
+
+impl Default for GameLanguage {
+    fn default() -> Self {
+        Self(Language::default().to_string())
+    }
+}
 
 impl Default for Language {
     fn default() -> Self {

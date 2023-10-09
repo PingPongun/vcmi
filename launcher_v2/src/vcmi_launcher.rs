@@ -161,7 +161,7 @@ impl eframe::App for VCMILauncher {
             .resizable(false)
             .show(ctx, |ui| {
                 ui.heading(t!(
-                    "general.Do you want to quit?\n Launcher is performing some background operations."
+                    "general.Are you sure you want to quit?\n Launcher is performing some background operations."
                 ));
                 ui.horizontal(|ui| {
                     if ui.button(t!("_common.No")).clicked() {
