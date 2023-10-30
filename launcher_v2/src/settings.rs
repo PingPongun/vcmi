@@ -11,7 +11,8 @@
  *
  */
 use educe::Educe;
-use egui::{ScrollArea, Ui, Widget};
+use egui::{RichText, Ui};
+use egui_struct::*;
 use egui_toast::Toast;
 use indexmap::IndexMap;
 use rust_i18n::*;
@@ -23,9 +24,8 @@ use std::ops::Deref;
 use std::ops::DerefMut;
 use std::sync::atomic::AtomicUsize;
 use strum::*;
-use vcmi_launcher_macros::*;
+use ConfigNum::*;
 
-use crate::gui_primitives::DisplayGUI;
 use crate::utils::*;
 use crate::vcmi_launcher::*;
 
@@ -56,68 +56,86 @@ impl VCMILauncher {
     }
 
     pub fn show_settings(&mut self, ui: &mut Ui) {
-        if ScrollArea::vertical()
-            .auto_shrink([false; 2])
-            .show(ui, |ui| self.settings.show_ui(ui, "settings:"))
-            .inner
+        if self
+            .settings
+            .show_top_mut(
+                ui,
+                RichText::new(t!("menu.TabName.Settings")).heading(),
+                None,
+            )
+            .changed()
         {
             self.save_settings();
         }
     }
 }
 
-#[derive(Default, Deserialize, Serialize, DisplayGUI)]
+#[derive(Default, Deserialize, Serialize, EguiStruct)]
 #[serde(default, rename_all = "camelCase")]
-#[module(settings)]
-#[uncollapsed]
+#[eguis(
+    prefix = "settings",
+    rename_all = "Sentence",
+    resetable = "struct_default"
+)]
 pub struct Settings {
     pub general: SettingsGeneral,
     pub video: SettingsVideo,
     pub server: SettingsServer,
     pub launcher: SettingsLauncher,
     #[serde(flatten)] //capture/preserve not recognized fields
-    #[skip]
+    #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
 }
 
-#[derive(Deserialize, Serialize, DisplayGUI, Educe)]
+#[derive(Deserialize, Serialize, EguiStruct, Educe)]
 #[educe(Default)]
 #[serde(default, rename_all = "camelCase")]
-#[module(settings)]
+#[eguis(prefix = "settings", rename_all = "Sentence")]
 pub struct SettingsGeneral {
+    #[eguis(hint = "Select language you prefer to use in launcher")]
     pub language: Language,
     pub game_data_language: GameLanguage,
     #[educe(Default = 5)]
     autosave_count_limit: usize,
-    #[educe(Default(expression = "RangedVal(50)"))]
-    music: RangedVal<0, 100>,
-    #[educe(Default(expression = "RangedVal(50)"))]
-    sound: RangedVal<0, 100>,
+    #[educe(Default(50))]
+    #[eguis(config = "Slider(0,100)")]
+    music: isize,
+    #[educe(Default(50))]
+    #[eguis(config = "Slider(0,100)")]
+    sound: isize,
     #[serde(flatten)]
-    #[skip]
+    #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
 }
-#[derive(Default, Deserialize, Serialize, DisplayGUI)]
+#[derive(Default, Deserialize, Serialize, EguiStruct)]
 #[serde(default, rename_all = "camelCase")]
-#[module(settings)]
+#[eguis(prefix = "settings", rename_all = "Sentence")]
 pub struct SettingsLauncher {
     pub auto_check_repositories: Tbool,
     pub update_on_startup: Tbool,
     // defaultRepositoryEnabled: Tbool,
     // extraRepositoryEnabled: bool,
     // extraRepositoryURL: String,
-    #[skip]
+    #[eguis(skip)]
     pub lobby_username: String,
-    #[skip]
+    #[eguis(skip)]
     pub setup_completed: bool,
     #[serde(flatten)]
-    #[skip]
+    #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
 }
-#[derive(Deserialize, Serialize, DisplayGUI, Educe)]
+
+// impl PartialEq for SettingsLauncher {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.auto_check_repositories == other.auto_check_repositories
+//             && self.update_on_startup == other.update_on_startup
+//             && self.lobby_username == other.lobby_username
+//     }
+// }
+#[derive(Deserialize, Serialize, EguiStruct, Educe)]
 #[educe(Default)]
 #[serde(default, rename_all = "camelCase")]
-#[module(settings)]
+#[eguis(prefix = "settings")]
 pub struct SettingsServer {
     #[educe(Default(expression = "AIAdventure::VCAI"))]
     allied_ai: AIAdventure,
@@ -127,12 +145,12 @@ pub struct SettingsServer {
     friendly_ai: AIBattle,
     enemy_ai: AIBattle,
     #[serde(flatten)]
-    #[skip]
+    #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
 }
-#[derive(Default, Deserialize, Serialize, DisplayGUI)]
+#[derive(Default, Deserialize, Serialize, EguiStruct)]
 #[serde(default, rename_all = "camelCase")]
-#[module(settings)]
+#[eguis(prefix = "settings", rename_all = "Sentence")]
 pub struct SettingsVideo {
     fullscreen: bool,
     real_fullscreen: bool,
@@ -140,7 +158,7 @@ pub struct SettingsVideo {
     show_intro: Tbool,
     // targetfps
     #[serde(flatten)]
-    #[skip]
+    #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
 }
 
@@ -242,11 +260,8 @@ impl AtomicLanguage {
     }
 }
 
-#[derive(Default, Deserialize, Serialize)]
-pub struct RangedVal<const MIN: isize, const MAX: isize>(pub isize);
-
 // #[derive(Default)]
-// struct OptionalVal<T: DisplayGUI, S: OptionalValTrait>(Option<T>, PhantomData<S>);
+// struct OptionalVal<T: EguiStruct, S: OptionalValTrait>(Option<T>, PhantomData<S>);
 // trait OptionalValTrait {
 //     const ENABLE_NAME: &'static str;
 //     const INNER_NAME: &'static str;
@@ -254,30 +269,27 @@ pub struct RangedVal<const MIN: isize, const MAX: isize>(pub isize);
 // macro_rules! OptionalVal {
 //     ($enable_name:ident, $inner_name:ident) => {};
 // }
-// impl<T: DisplayGUI, S: OptionalValTrait> DisplayGUI for OptionalVal<T, S> {
-//     fn show_ui(&mut self, ui: &mut Ui, label: &str) {
-//         ui.label(label);
-//         if let Some(inner) = &mut self.0 {}else{}
-//     }
-// }
 
-#[derive(Default, Clone, Copy, Deserialize, Serialize, FromRepr, EnumComboboxI18N)]
-#[module(settings.SettingsServer)]
+#[derive(Default, Clone, Copy, PartialEq, Deserialize, Serialize, FromRepr, EguiStruct)]
+#[eguis(prefix = "settings.SettingsServer")]
 enum AIBattle {
     #[default]
     BattleAI,
+    #[eguis(hint = "More stupid, but faster AI in battles")]
     StupidAI,
 }
-#[derive(Default, Clone, Copy, Deserialize, Serialize, FromRepr, EnumComboboxI18N)]
-#[module(settings.SettingsServer)]
+
+#[derive(Default, Clone, Copy, PartialEq, Deserialize, Serialize, FromRepr, EguiStruct)]
+#[eguis(prefix = "settings.SettingsServer")]
 enum AIAdventure {
     #[default]
+    #[eguis(hint = "Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies)")]
     Nullkiller,
     VCAI,
 }
 
 ///Same as bool but defaults to true
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, EguiStruct)]
 pub struct Tbool(bool);
 
 impl Default for Tbool {

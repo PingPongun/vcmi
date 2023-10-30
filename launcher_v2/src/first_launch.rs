@@ -10,11 +10,12 @@
  */
 use atomic_enum::atomic_enum;
 use egui::{Context, Grid, RichText, Ui};
+use egui_struct::EguiStruct;
 use egui_toast::Toast;
 use rust_i18n::{t, ToStringI18N};
 use std::sync::{atomic::Ordering, Arc};
 
-use crate::gui_primitives::{DisplayGUI, EguiUiExt};
+use crate::gui_primitives::EguiUiExt;
 use crate::mod_manager::ModPath;
 use crate::utils::*;
 use crate::vcmi_launcher::*;
@@ -188,10 +189,14 @@ impl VCMILauncher {
 
     fn first_launch_show_language_set(&mut self, ui: &mut Ui) {
         ui.group_wrapped(|ui| {
-            self.settings
-                .general
-                .language
-                .show_ui(ui, &t!("first_launch.Select your language"));
+            self.settings.general.language.show_collapsing_mut(
+                ui,
+                &t!("first_launch.Select your language"),
+                "Select language you prefer to use in launcher",
+                0,
+                (),
+                None,
+            );
         });
         ui.add_space(6.0);
         ui.label(t!("first_launch.intro_message"));
@@ -292,7 +297,7 @@ impl VCMILauncher {
                     let mut show_mod = |val: &mut bool, name, text| {
                         if let Ok(mod_) = ModPath::new(name).get_mod() {
                             if !mod_.active.installed() {
-                                val.show_ui(ui, "");
+                                val.show_primitive_mut(ui, ());
                                 ui.label(mod_.get_name());
                                 ui.horizontal_wrapped(|ui| ui.label(text));
                                 ui.end_row();

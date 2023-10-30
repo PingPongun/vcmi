@@ -32,6 +32,7 @@
 ### Feature parity with old launcher
 
 - lobby
+- hidden mods(compatibility & lang)
 - [Android] [iOS] select homm data location for copying
 - add missing settings
 - detect homm lang (?)

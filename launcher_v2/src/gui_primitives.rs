@@ -8,7 +8,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-use egui::{Color32, InnerResponse, RichText, Ui, Widget};
+use egui::{Color32, InnerResponse, Response, RichText, Ui};
+use egui_struct::*;
 use indexmap::IndexSet;
 use parking_lot::RwLock;
 use rust_i18n::set_locale;
@@ -31,35 +32,8 @@ macro_rules! icon {
     };
 }
 ///////////////////////////////////////////////////////////////////
-/////////////////DisplayGUI trait & implementations////////////////
+/////////////////EguiStruct trait & implementations////////////////
 ///////////////////////////////////////////////////////////////////
-pub trait DisplayGUI {
-    fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool;
-}
-
-impl DisplayGUI for usize {
-    fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
-        ui.label(label);
-        egui::DragValue::new(self).ui(ui).changed()
-    }
-}
-impl DisplayGUI for bool {
-    fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
-        ui.label(label);
-
-        egui::Checkbox::without_text(self).ui(ui).changed()
-    }
-}
-
-impl<const MIN: isize, const MAX: isize> DisplayGUI for RangedVal<MIN, MAX> {
-    fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
-        ui.label(label);
-        egui::DragValue::new(&mut self.0)
-            .clamp_range(MIN..=MAX)
-            .ui(ui)
-            .changed()
-    }
-}
 
 lazy_static::lazy_static! {
     pub static ref GAME_LANGUAGES: RwLock<IndexMap<String,String>> =  RwLock::new(Language::iter()
@@ -81,8 +55,21 @@ lazy_static::lazy_static! {
     .collect();
 }
 
-impl DisplayGUI for GameLanguage {
-    fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
+impl EguiStructImut for GameLanguage {
+    type ConfigTypeImut = ();
+    fn show_primitive(&self, ui: &mut Ui, _config: Self::ConfigTypeImut) -> Response {
+        let langs = GAME_LANGUAGES.read();
+        if let Some(lang) = langs.get(&self.0) {
+            ui.label(lang)
+        } else {
+            ui.label(self.0.clone())
+        }
+    }
+}
+impl_eeqclone! {GameLanguage}
+impl EguiStruct for GameLanguage {
+    type ConfigType = ();
+    fn show_primitive_mut(&mut self, ui: &mut Ui, _config: Self::ConfigType) -> Response {
         let mut langs = GAME_LANGUAGES.write();
         let mut current = if let Some(idx) = langs.get_index_of(&self.0) {
             idx
@@ -90,34 +77,48 @@ impl DisplayGUI for GameLanguage {
             langs.insert(self.0.clone(), self.0.clone());
             langs.get_index_of(&self.0).unwrap()
         };
-        egui::Label::new(label).ui(ui);
-        if egui::ComboBox::from_id_source(ui.next_auto_id())
-            .show_index(ui, &mut current, langs.len(), |i| &langs[i])
-            .changed()
-        {
+        let ret = egui::ComboBox::from_id_source(ui.next_auto_id()).show_index(
+            ui,
+            &mut current,
+            langs.len(),
+            |i| &langs[i],
+        );
+        if ret.changed() {
             *self = GameLanguage(langs.get_index(current).unwrap().0.clone());
-            return true;
         }
-        return false;
+        ret
     }
 }
-impl DisplayGUI for Language {
-    fn show_ui(&mut self, ui: &mut Ui, label: &str) -> bool {
+impl EguiStructImut for Language {
+    type ConfigTypeImut = ();
+    fn show_primitive(&self, ui: &mut Ui, _config: Self::ConfigTypeImut) -> Response {
         let mut idx = self.int();
         if idx >= APP_LANGUAGES.len() {
             idx = 0;
         }
-        egui::Label::new(label).ui(ui);
-        if egui::ComboBox::from_id_source(ui.next_auto_id())
-            .show_index(ui, &mut idx, APP_LANGUAGES.len(), |i| &APP_LANGUAGES[i])
-            .changed()
-        {
+        ui.label(APP_LANGUAGES[idx].clone())
+    }
+}
+impl_eeqclone! {Language}
+impl EguiStruct for Language {
+    type ConfigType = ();
+    fn show_primitive_mut(&mut self, ui: &mut Ui, _config: Self::ConfigType) -> Response {
+        let mut idx = self.int();
+        if idx >= APP_LANGUAGES.len() {
+            idx = 0;
+        }
+        let ret = egui::ComboBox::from_id_source(ui.next_auto_id()).show_index(
+            ui,
+            &mut idx,
+            APP_LANGUAGES.len(),
+            |i| &APP_LANGUAGES[i],
+        );
+        if ret.changed() {
             *self = Language::from_repr(idx).unwrap();
             set_locale(&LANGUAGES_SHORT[idx]);
             LANGUAGE.set(self.clone());
-            return true;
         }
-        return false;
+        ret
     }
 }
 pub trait EguiUiExt {

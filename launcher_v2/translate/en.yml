@@ -115,17 +115,32 @@ mod.select.All: All
 mod.select.None: None
 mod.select.Select: Select
 mod.select.Selected: Selected
-settings.SettingsGeneral.game_data_language: Game data language
-settings.SettingsGeneral.language: VCMI language
+settings.Settings.General: General
+settings.Settings.Launcher: Launcher
+settings.Settings.Server: Server
+settings.Settings.Video: Video
+settings.SettingsGeneral.Autosave count limit: Autosave count limit
+settings.SettingsGeneral.Game data language: Game data language
+settings.SettingsGeneral.Language: VCMI language
+settings.SettingsGeneral.Music: Music
+settings.SettingsGeneral.Sound: Sound
+settings.SettingsGeneral.language.hint.Select language you prefer to use in launcher: Select language you prefer to use in launcher
+settings.SettingsLauncher.Auto check repositories: Auto check repositories
+settings.SettingsLauncher.Update on startup: Update on startup
 settings.SettingsServer.AIAdventure.Nullkiller: Nullkiller
+settings.SettingsServer.AIAdventure.Nullkiller.hint.Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies): Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies)
 settings.SettingsServer.AIAdventure.VCAI: VCAI
-settings.SettingsServer.AIBattle.BattleAI: BattleAI
-settings.SettingsServer.AIBattle.StupidAI: StupidAI
+settings.SettingsServer.AIBattle.BattleAI: Battle AI
+settings.SettingsServer.AIBattle.StupidAI: Stupid AI
+settings.SettingsServer.AIBattle.StupidAI.hint.More stupid, but faster AI in battles: More stupid, but faster AI in battles
 settings.SettingsServer.allied_ai: Allied AI
 settings.SettingsServer.enemy_ai: Enemy AI
 settings.SettingsServer.friendly_ai: Friendly AI
 settings.SettingsServer.neutral_ai: Neutral AI
 settings.SettingsServer.player_ai: Player AI
+settings.SettingsVideo.Fullscreen: Fullscreen
+settings.SettingsVideo.Real fullscreen: Real fullscreen
+settings.SettingsVideo.Show intro: Show intro
 toasts.error.Failed to open mod file!: Failed to open mod file!
 toasts.error.Failed to open settings file!: Failed to open settings file!
 toasts.error.HoMM data copy failed!: HoMM data copy failed!

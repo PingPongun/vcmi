@@ -375,7 +375,7 @@ mod local {
         fn is_empty(&self) -> bool {
             self.0.is_empty()
         }
-        fn _show<'a>(&'a self, ui: &'a mut Ui, intend_level: usize, mng: &mut ModMng) -> bool {
+        fn _show<'a>(&'a self, ui: &'a mut Ui, indent_level: usize, mng: &mut ModMng) -> bool {
             //this sorting implementation is not efficient (but it's lock-less)
             let mut ret = false;
 
@@ -384,7 +384,7 @@ mod local {
                     $iter.$f((),|_,k| {
                         self.0.iter()
                             .filter(|(_, $k)| $key == k)
-                            .for_each(|(_, mod_data)| { ret |= mod_data.show_list_elem(ui, intend_level, mng); })
+                            .for_each(|(_, mod_data)| { ret |= mod_data.show_list_elem(ui, indent_level, mng); })
                     })
                 };
                 ($iter: expr, $k:ident=>$key:expr) => {
@@ -398,7 +398,7 @@ mod local {
             macro_rules! sort_name {
                 ($f:ident) => {
                     self.0.iter().$f((), |_, (_, mod_data)| {
-                        ret |= mod_data.show_list_elem(ui, intend_level, mng);
+                        ret |= mod_data.show_list_elem(ui, indent_level, mng);
                     })
                 };
                 () => {
@@ -651,11 +651,11 @@ mod local {
                 ModStateUpdate::None
             }
         }
-        pub fn show_list_elem(&self, ui: &mut Ui, intend_level: usize, mng: &mut ModMng) -> bool {
+        pub fn show_list_elem(&self, ui: &mut Ui, indent_level: usize, mng: &mut ModMng) -> bool {
             let mut ret = false;
             ui.horizontal(|ui| {
                 let mod_name = self.get_name();
-                for _ in 0..intend_level {
+                for _ in 0..indent_level {
                     ui.separator();
                 }
                 if !self.mods.is_empty() {
@@ -731,7 +731,7 @@ mod local {
             ui.end_row();
 
             if !self.mods.is_empty() && self.volatile.unfolded.load(Relaxed) {
-                ret |= self.mods._show(ui, intend_level + 1, mng);
+                ret |= self.mods._show(ui, indent_level + 1, mng);
             }
             ret
         }
