@@ -82,6 +82,7 @@ pub struct Settings {
     pub video: SettingsVideo,
     pub server: SettingsServer,
     pub launcher: SettingsLauncher,
+
     #[serde(flatten)] //capture/preserve not recognized fields
     #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
@@ -94,15 +95,29 @@ pub struct Settings {
 pub struct SettingsGeneral {
     #[eguis(hint = "Select language you prefer to use in launcher")]
     pub language: Language,
+
     pub game_data_language: GameLanguage,
+
+    #[eguis(rename = "Autosave each X turn (0 = off)")]
+    #[educe(Default = 1)]
+    save_frequency: usize,
+
     #[educe(Default = 5)]
+    #[eguis(rename = "Autosave limit (0 = off)")]
     autosave_count_limit: usize,
+
+    #[serde(flatten)]
+    #[eguis(rename = "Autosave prefix", hint = "empty = map_name_prefix")]
+    save_prefix: SavePrefix,
+
     #[educe(Default(50))]
     #[eguis(config = "Slider(0,100)")]
     music: isize,
+
     #[educe(Default(50))]
     #[eguis(config = "Slider(0,100)")]
     sound: isize,
+
     #[serde(flatten)]
     #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
@@ -112,51 +127,72 @@ pub struct SettingsGeneral {
 #[eguis(prefix = "settings", rename_all = "Sentence")]
 pub struct SettingsLauncher {
     pub auto_check_repositories: Tbool,
+
     pub update_on_startup: Tbool,
-    // defaultRepositoryEnabled: Tbool,
-    // extraRepositoryEnabled: bool,
-    // extraRepositoryURL: String,
+
+    #[eguis(rename = "Default mod repository")]
+    pub default_repository_enabled: Tbool,
+
+    #[serde(flatten)]
+    pub extra_repository: ExtraRepository,
+
     #[eguis(skip)]
     pub lobby_username: String,
+
     #[eguis(skip)]
     pub setup_completed: bool,
+
     #[serde(flatten)]
     #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
 }
 
-// impl PartialEq for SettingsLauncher {
-//     fn eq(&self, other: &Self) -> bool {
-//         self.auto_check_repositories == other.auto_check_repositories
-//             && self.update_on_startup == other.update_on_startup
-//             && self.lobby_username == other.lobby_username
-//     }
-// }
 #[derive(Deserialize, Serialize, EguiStruct, Educe)]
 #[educe(Default)]
 #[serde(default, rename_all = "camelCase")]
 #[eguis(prefix = "settings")]
 pub struct SettingsServer {
     #[educe(Default(expression = "AIAdventure::VCAI"))]
+    #[eguis(rename = "Allies adventure AI")]
     allied_ai: AIAdventure,
+
+    #[eguis(rename = "Enemies adventure AI")]
     player_ai: AIAdventure,
+
     #[educe(Default(expression = "AIBattle::StupidAI"))]
+    #[eguis(rename = "Neutrals battle AI")]
     neutral_ai: AIBattle,
+
+    #[eguis(rename = "Allies battle AI")]
     friendly_ai: AIBattle,
+
+    #[eguis(rename = "Enemies battle AI")]
     enemy_ai: AIBattle,
+
+    #[educe(Default(3030))]
+    #[eguis(rename = "Network port")]
+    port: u16,
+
     #[serde(flatten)]
     #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
 }
-#[derive(Default, Deserialize, Serialize, EguiStruct)]
+#[derive(Deserialize, Serialize, EguiStruct, Educe)]
+#[educe(Default)]
 #[serde(default, rename_all = "camelCase")]
 #[eguis(prefix = "settings", rename_all = "Sentence")]
 pub struct SettingsVideo {
-    fullscreen: bool,
-    real_fullscreen: bool,
-    // resolution
+    cursor: VideoCursor,
+
+    #[serde(flatten)]
+    display_mode: DisplayOptions,
+
     show_intro: Tbool,
-    // targetfps
+
+    #[eguis(rename = "Framerate Limit")]
+    #[educe(Default(60))]
+    targetfps: usize,
+
     #[serde(flatten)]
     #[eguis(skip)]
     extra: IndexMap<String, serde_json::Value>,
@@ -180,22 +216,31 @@ pub struct SettingsVideo {
 pub enum Language {
     #[strum(message = "en", detailed_message = "English")]
     English = 0,
+
     #[strum(message = "pl", detailed_message = "polski")]
     Polish,
+
     #[strum(message = "de", detailed_message = "Deutsch")]
     German,
+
     #[strum(message = "zh", detailed_message = "简体中文")]
     Chinese,
+
     #[strum(message = "fr", detailed_message = "Français")]
     French,
+
     #[strum(message = "ru", detailed_message = "Русский")]
     Russian,
+
     #[strum(message = "uk", detailed_message = "Українська")]
     Ukrainian,
+
     #[strum(message = "es", detailed_message = "Español")]
     Spanish,
+
     #[strum(message = "cs", detailed_message = "čeština")]
     Czech,
+
     #[serde(other)]
     Other(String), //add other languages
 }
@@ -259,16 +304,7 @@ impl AtomicLanguage {
             .store(val.int(), std::sync::atomic::Ordering::Relaxed)
     }
 }
-
-// #[derive(Default)]
-// struct OptionalVal<T: EguiStruct, S: OptionalValTrait>(Option<T>, PhantomData<S>);
-// trait OptionalValTrait {
-//     const ENABLE_NAME: &'static str;
-//     const INNER_NAME: &'static str;
-// }
-// macro_rules! OptionalVal {
-//     ($enable_name:ident, $inner_name:ident) => {};
-// }
+/////////////////////////////////////////////////////////////
 
 #[derive(Default, Clone, Copy, PartialEq, Deserialize, Serialize, FromRepr, EguiStruct)]
 #[eguis(prefix = "settings.SettingsServer")]
@@ -286,6 +322,56 @@ enum AIAdventure {
     #[eguis(hint = "Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies)")]
     Nullkiller,
     VCAI,
+}
+
+#[derive(Default, Clone, Copy, PartialEq, Deserialize, Serialize, FromRepr, EguiStruct)]
+#[eguis(prefix = "settings.SettingsServer")]
+#[serde(rename_all = "lowercase")]
+enum VideoCursor {
+    #[default]
+    Hardware,
+    Software,
+}
+
+#[derive(Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct DisplayOptions {
+    pub fullscreen: bool,
+
+    pub real_fullscreen: bool,
+
+    #[serde(flatten)]
+    pub resolution: ResolutionScaling,
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Resolution {
+    height: usize,
+    width: usize,
+}
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ResolutionScaling {
+    #[serde(flatten)]
+    pub resolution: Resolution,
+    pub scaling: usize,
+}
+impl Default for Resolution {
+    fn default() -> Self {
+        Self {
+            height: 600,
+            width: 800,
+        }
+    }
+}
+impl Default for ResolutionScaling {
+    fn default() -> Self {
+        Self {
+            resolution: Default::default(),
+            scaling: 100,
+        }
+    }
 }
 
 ///Same as bool but defaults to true
@@ -309,3 +395,53 @@ impl DerefMut for Tbool {
         &mut self.0
     }
 }
+
+macro_rules! type_optional {
+    ($type:ident, $enable_ident:ident, $enable_default:expr, $val_ident:ident, $val_default:expr) => {
+        #[derive(Clone, PartialEq, Serialize, Deserialize)]
+        #[serde(default, rename_all = "camelCase")]
+        pub struct $type {
+            $enable_ident: bool,
+            $val_ident: String,
+        }
+        impl Default for $type {
+            fn default() -> Self {
+                Self {
+                    $enable_ident: $enable_default,
+                    $val_ident: $val_default,
+                }
+            }
+        }
+
+        impl EguiStructImut for $type {
+            const SIMPLE: bool = false;
+            type ConfigTypeImut = ();
+        }
+        impl_eeqclone! {$type}
+        impl EguiStruct for $type {
+            type ConfigType = ();
+
+            fn show_primitive_mut(
+                self: &mut Self,
+                ui: &mut Ui,
+                _config: Self::ConfigType,
+            ) -> egui::Response {
+                ui.horizontal(|ui| {
+                    let mut ret = self.$enable_ident.show_primitive_mut(ui, ());
+                    if self.$enable_ident {
+                        ret |= self.$val_ident.show_primitive_mut(ui, ());
+                    } else {
+                        ret |= self.$val_ident.show_primitive(ui, ());
+                    }
+                    ret
+                })
+                .inner
+            }
+        }
+    };
+    ($type:ident, $enable_ident:ident, $val_ident:ident) => {
+        type_optional! {$type, $enable_ident, Default::default(), $val_ident, Default::default()}
+    };
+}
+type_optional! {SavePrefix, use_save_prefix, save_prefix}
+type_optional! {ExtraRepository, extra_repository_enabled, extra_repository_url}

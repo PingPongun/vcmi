@@ -33,8 +33,9 @@
 
 - lobby
 - hidden mods(compatibility & lang)
+- extra repo support
 - [Android] [iOS] select homm data location for copying
-- add missing settings
+- add missing settings (select display resolution- is this still needed when map zooming & interface scalling are available?)
 - detect homm lang (?)
 - [Android] check internal data hash, or store app version in settings.json (needed for iOS?)
 - better cmake integration:
@@ -42,7 +43,6 @@
   - use corrosion also for android
   - check iOS
   - integrate setup & java part
-- hints on hover
 - Test on mac & ios
 - Check VDirs corectness & consistence with VCMI_dirs.cpp
 - reuse VCMI_dirs.cpp ???

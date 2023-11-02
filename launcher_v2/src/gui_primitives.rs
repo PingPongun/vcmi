@@ -12,7 +12,7 @@ use egui::{Color32, InnerResponse, Response, RichText, Ui};
 use egui_struct::*;
 use indexmap::IndexSet;
 use parking_lot::RwLock;
-use rust_i18n::set_locale;
+use rust_i18n::{set_locale, t};
 use std::fmt::Display;
 use strum::IntoEnumIterator;
 
@@ -121,6 +121,88 @@ impl EguiStruct for Language {
         ret
     }
 }
+
+//Select display mode for game
+#[derive(Clone, Copy, PartialEq, EguiStruct)]
+#[eguis(prefix = "settings.SettingsVideo")]
+enum FullscreenMode {
+    #[eguis(hint = "Game will run inside a window that covers part of your screen")]
+    Windowed,
+
+    #[eguis(
+        hint = "Game will run in a window that covers entirely of your screen, using same resolution as your screen"
+    )]
+    BorderlessFullscreen,
+
+    #[eguis(hint = "Game will cover entirety of your screen and will use selected resolution")]
+    ExclusiveFullscreen,
+}
+
+impl EguiStructImut for DisplayOptions {
+    const SIMPLE: bool = false;
+    type ConfigTypeImut = ();
+
+    fn has_childs(&self) -> bool {
+        true
+    }
+
+    fn has_primitive(&self) -> bool {
+        true
+    }
+}
+impl_eeqclone! {DisplayOptions}
+impl EguiStruct for DisplayOptions {
+    type ConfigType = ();
+
+    fn show_primitive_mut(self: &mut Self, ui: &mut Ui, _config: Self::ConfigType) -> Response {
+        let mut fm = match (self.fullscreen, self.real_fullscreen) {
+            (_, true) => FullscreenMode::ExclusiveFullscreen,
+            (true, false) => FullscreenMode::BorderlessFullscreen,
+            (false, false) => FullscreenMode::Windowed,
+        };
+        let ret = ui.horizontal(|ui| fm.show_primitive_mut(ui, ())).inner;
+        if ret.changed() {
+            (self.fullscreen, self.real_fullscreen) = match fm {
+                FullscreenMode::Windowed => (false, false),
+                FullscreenMode::BorderlessFullscreen => (true, false),
+                FullscreenMode::ExclusiveFullscreen => (true, true),
+            };
+        }
+        ret
+    }
+
+    fn show_childs_mut(
+        self: &mut Self,
+        ui: &mut Ui,
+        indent_level: isize,
+        response: Response,
+        reset2: Option<&Self>,
+    ) -> Response {
+        let mut ret = response;
+        //(640,480),(800,600),(1024,768),(1280,720),(1360,768),(1366,768),(1280,1024),(1600,900),(1680,1050),(1920,1080)
+        // TODO this will require breaking into eframe internals OR dropping eframe in favor of raw winit+wgpu?
+        // if (self.fullscreen, self.real_fullscreen) != (true, false) {
+        //     ret |= self.resolution.resolution.show_collapsing_mut(
+        //         ui,
+        //         t!("settings.SettingsVideo.Resolution"),
+        //         "",
+        //         indent_level,
+        //         (),
+        //         reset2.map(|x| &x.resolution.resolution),
+        //     );
+        // }
+        ret |= self.resolution.scaling.show_collapsing_mut(
+            ui,
+            t!("settings.SettingsVideo.Interface scalling"),
+            "",
+            indent_level,
+            Default::default(),
+            reset2.map(|x| &x.resolution.scaling),
+        );
+        ret
+    }
+}
+
 pub trait EguiUiExt {
     fn group_wrapped<R>(&mut self, add_contents: impl FnOnce(&mut Ui) -> R) -> InnerResponse<R>;
 }

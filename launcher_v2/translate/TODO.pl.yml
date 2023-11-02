@@ -112,13 +112,18 @@ settings.Settings.General: General
 settings.Settings.Launcher: Launcher
 settings.Settings.Server: Server
 settings.Settings.Video: Video
-settings.SettingsGeneral.Autosave count limit: Autosave count limit
+settings.SettingsGeneral.Autosave each X turn (0 = off): Autosave each X turn (0 = off)
+settings.SettingsGeneral.Autosave limit (0 = off): Autosave limit (0 = off)
+settings.SettingsGeneral.Autosave prefix: Autosave prefix
 settings.SettingsGeneral.Game data language: Game data language
 settings.SettingsGeneral.Language: VCMI language
 settings.SettingsGeneral.Music: Music
 settings.SettingsGeneral.Sound: Sound
 settings.SettingsGeneral.language.hint.Select language you prefer to use in launcher: Select language you prefer to use in launcher
+settings.SettingsGeneral.save_prefix.hint.empty = map_name_prefix: empty = map_name_prefix
 settings.SettingsLauncher.Auto check repositories: Auto check repositories
+settings.SettingsLauncher.Default mod repository: Default mod repository
+settings.SettingsLauncher.Extra repository: Extra repository
 settings.SettingsLauncher.Update on startup: Update on startup
 settings.SettingsServer.AIAdventure.Nullkiller: Nullkiller
 settings.SettingsServer.AIAdventure.Nullkiller.hint.Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies): Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies)
@@ -126,13 +131,26 @@ settings.SettingsServer.AIAdventure.VCAI: VCAI
 settings.SettingsServer.AIBattle.BattleAI: Battle AI
 settings.SettingsServer.AIBattle.StupidAI: Stupid AI
 settings.SettingsServer.AIBattle.StupidAI.hint.More stupid, but faster AI in battles: More stupid, but faster AI in battles
-settings.SettingsServer.allied_ai: Allied AI
-settings.SettingsServer.enemy_ai: Enemy AI
-settings.SettingsServer.friendly_ai: Friendly AI
-settings.SettingsServer.neutral_ai: Neutral AI
-settings.SettingsServer.player_ai: Player AI
-settings.SettingsVideo.Fullscreen: Fullscreen
-settings.SettingsVideo.Real fullscreen: Real fullscreen
+settings.SettingsServer.Allies adventure AI: Allies adventure AI
+settings.SettingsServer.Allies battle AI: Allies battle AI
+settings.SettingsServer.Enemies adventure AI: Enemies adventure AI
+settings.SettingsServer.Enemies battle AI: Enemies battle AI
+settings.SettingsServer.Network port: Network port
+settings.SettingsServer.Neutrals battle AI: Neutrals battle AI
+settings.SettingsServer.VideoCursor.Hardware: Hardware
+settings.SettingsServer.VideoCursor.Software: Software
+settings.SettingsVideo.Cursor: Cursor
+settings.SettingsVideo.Display mode: Display mode
+settings.SettingsVideo.Framerate Limit: Framerate Limit
+settings.SettingsVideo.FullscreenMode.BorderlessFullscreen: BorderlessFullscreen
+? settings.SettingsVideo.FullscreenMode.BorderlessFullscreen.hint.Game will run in a window that covers entirely of your screen, using same resolution as your screen
+: Game will run in a window that covers entirely of your screen, using same resolution as your screen
+settings.SettingsVideo.FullscreenMode.ExclusiveFullscreen: ExclusiveFullscreen
+? settings.SettingsVideo.FullscreenMode.ExclusiveFullscreen.hint.Game will cover entirety of your screen and will use selected resolution
+: Game will cover entirety of your screen and will use selected resolution
+settings.SettingsVideo.FullscreenMode.Windowed: Windowed
+settings.SettingsVideo.FullscreenMode.Windowed.hint.Game will run inside a window that covers part of your screen: Game will run inside a window that covers part of your screen
+settings.SettingsVideo.Interface scalling: Interface scalling
 settings.SettingsVideo.Show intro: Show intro
 toasts.error.Failed to open mod file!: Failed to open mod file!
 toasts.error.Failed to open settings file!: Failed to open settings file!
