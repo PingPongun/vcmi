@@ -484,40 +484,38 @@ mod local {
         }
         pub fn show_list(&self, ui: &mut Ui, mng: &mut ModMng) {
             mng.problems = false;
-            ScrollArea::vertical()
-                .auto_shrink([false; 2])
-                .show(ui, |ui| {
-                    self.show_buttons_top(ui, mng);
-                    Grid::new(ui.next_auto_id())
-                        .striped(true)
-                        .min_col_width(0.0)
-                        .show(ui, |ui| {
-                            let mut column = |name: String, col: ModSort| {
-                                // |ui: &mut Ui, name: &str, col: ModSort, mng: &mut ModMng| {
-                                let name = match (col == mng.sort, mng.sort_rev) {
-                                    (true, true) => name + "⏶",
-                                    (true, false) => name + "⏷",
-                                    (false, _) => name,
-                                };
-                                //make buttons expand for full column width
-                                ui.centered_and_justified(|ui| {
-                                    if ui.button(name).clicked() {
-                                        mng.sort_rev = col == mng.sort && !mng.sort_rev;
-                                        mng.sort = col;
-                                    };
-                                });
+            ScrollArea::both().auto_shrink([false; 2]).show(ui, |ui| {
+                self.show_buttons_top(ui, mng);
+                Grid::new(ui.next_auto_id())
+                    .striped(true)
+                    .min_col_width(0.0)
+                    .show(ui, |ui| {
+                        let mut column = |name: String, col: ModSort| {
+                            // |ui: &mut Ui, name: &str, col: ModSort, mng: &mut ModMng| {
+                            let name = match (col == mng.sort, mng.sort_rev) {
+                                (true, true) => name + "⏶",
+                                (true, false) => name + "⏷",
+                                (false, _) => name,
                             };
-                            column(t!("mod.Name"), ModSort::Name);
-                            column("".to_string(), ModSort::Selected);
-                            column("".to_string(), ModSort::Enabled);
-                            column("".to_string(), ModSort::Update);
-                            column(t!("mod.Mod type"), ModSort::Type);
-                            ui.end_row();
-                            if self._show(ui, 0, mng) {
-                                ModSettingsJson::save();
-                            }
-                        })
-                });
+                            //make buttons expand for full column width
+                            ui.centered_and_justified(|ui| {
+                                if ui.button(name).clicked() {
+                                    mng.sort_rev = col == mng.sort && !mng.sort_rev;
+                                    mng.sort = col;
+                                };
+                            });
+                        };
+                        column(t!("mod.Name"), ModSort::Name);
+                        column("".to_string(), ModSort::Selected);
+                        column("".to_string(), ModSort::Enabled);
+                        column("".to_string(), ModSort::Update);
+                        column(t!("mod.Mod type"), ModSort::Type);
+                        ui.end_row();
+                        if self._show(ui, 0, mng) {
+                            ModSettingsJson::save();
+                        }
+                    })
+            });
         }
 
         pub fn load_from_disk(path: &Path, mod_path: &ModPath) -> Self {
@@ -739,7 +737,7 @@ mod local {
         pub fn show_desc<'a>(&'a self, ui: &'a mut Ui, mng: &mut ModMng) {
             ScrollArea::vertical()
                 .auto_shrink([false; 2])
-                // .drag_to_scroll(true)
+                .drag_to_scroll(true)
                 .show(ui, |ui| {
                     ui.with_layout(Layout::top_down(egui::Align::RIGHT), |ui| {
                         if ui.button("🗙").clicked() || ui.input(|i| i.key_pressed(Key::Escape))

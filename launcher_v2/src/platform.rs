@@ -62,11 +62,12 @@ impl VDirs {
                 .home_dir()
                 .join("Documents")
                 .join("My Games")
-                .join("vcmi")
-                .canonicalize()
-                .unwrap(); //TODO handle Err
-            let internal = Path::new(".").canonicalize().unwrap().to_path_buf();
+                .join("vcmi");
+
+            let internal = dunce::canonicalize(Path::new(".")).unwrap().to_path_buf();
+
             let user_config = user_data.join("config");
+
             _ = VDIRS.set(VDirs {
                 settings: user_config.join("settings.json"),
                 settings_mod: user_config.join("modSettings.json"),
@@ -86,28 +87,19 @@ impl VDirs {
             let user_data = directories::UserDirs::new()
                 .unwrap()
                 .data_dir()
-                .join("vcmi")
-                .canonicalize()
-                .unwrap(); //TODO handle Err
+                .join("vcmi");
             let user_cache = directories::UserDirs::new()
                 .unwrap()
                 .cache_dir()
-                .join("vcmi")
-                .canonicalize()
-                .unwrap(); //TODO handle Err
+                .join("vcmi");
             let user_config = directories::UserDirs::new()
                 .unwrap()
                 .config_dir()
-                .join("vcmi")
-                .canonicalize()
-                .unwrap(); //TODO handle Err
+                .join("vcmi");
             let internal = if _development_mode {
                 Path::new(".").to_path_buf().canonicalize().unwrap()
             } else {
-                Path::new("/usr/share")
-                    .to_path_buf()
-                    .canonicalize()
-                    .unwrap()
+                Path::new("/usr/share").to_path_buf()
             };
             _ = VDIRS.set(VDirs {
                 settings: user_config.join("settings.json"),
@@ -133,9 +125,7 @@ impl VDirs {
             let user_data = home
                 .join("Library")
                 .join("Application Support")
-                .join("vcmi")
-                .canonicalize()
-                .unwrap();
+                .join("vcmi");
             let user_cache = user_data.clone(); //TODO handle Err
             let internal = if _development_mode {
                 Path::new(".").to_path_buf().canonicalize().unwrap()
@@ -170,15 +160,13 @@ impl VDirs {
                 .clone()
                 .internal_data_path()
                 .unwrap()
-                .canonicalize()
-                .unwrap();
+                .join("vcmi-data");
             let user_data = _native
                 .0
                 .clone()
                 .external_data_path()
                 .unwrap()
-                .canonicalize()
-                .unwrap();
+                .join("vcmi-data");
             let user_cache = user_data.join("cache");
             let user_config = user_data.join("config");
             _ = VDIRS.set(VDirs {
@@ -200,15 +188,8 @@ impl VDirs {
             let user_data = directories::UserDirs::new()
                 .unwrap()
                 .document_dir()
-                .unwrap()
-                .canonicalize()
-                .unwrap(); //TODO handle Err
-            let user_cache = directories::BaseDirs::new()
-                .unwrap()
-                .cache_dir()
-                .unwrap()
-                .canonicalize()
-                .unwrap(); //TODO handle Err
+                .unwrap();
+            let user_cache = directories::BaseDirs::new().unwrap().cache_dir().unwrap();
             let internal = Path::new(".").to_path_buf().canonicalize().unwrap(); // ???
             let user_config = user_data.join("config");
             _ = VDIRS.set(VDirs {
@@ -223,6 +204,17 @@ impl VDirs {
                 user_config,
                 user_data,
             });
+        }
+        use std::fs::create_dir_all as cda;
+        let mut result = cda(&VDIRS.get().unwrap().downloads);
+        result = result.and(cda(&VDIRS.get().unwrap().internal_mods));
+        result = result.and(cda(&VDIRS.get().unwrap().user_cache));
+        result = result.and(cda(&VDIRS.get().unwrap().mods));
+        result = result.and(cda(&VDIRS.get().unwrap().internal));
+        result = result.and(cda(&VDIRS.get().unwrap().user_config));
+        result = result.and(cda(&VDIRS.get().unwrap().user_data));
+        if let Err(err) = result {
+            panic!("{}", err)
         }
     }
 }

@@ -429,7 +429,9 @@ macro_rules! type_optional {
                     if self.$enable_ident {
                         ret |= self.$val_ident.show_primitive(ui, Default::default(), id);
                     } else {
-                        ret |= self.$val_ident.show_primitive(ui, Default::default(), id);
+                        ret |= self
+                            .$val_ident
+                            .show_primitive_imut(ui, Default::default(), id);
                     }
                     ret
                 })

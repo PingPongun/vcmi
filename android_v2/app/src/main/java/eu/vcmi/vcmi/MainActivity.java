@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.content.pm.PackageManager;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -62,6 +61,12 @@ public class MainActivity extends GameActivity {
         // super.setImeEditorInfoFields(InputType.TYPE_CLASS_TEXT,
         //     IME_ACTION_NONE, IME_FLAG_NO_FULLSCREEN );
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        hideSystemUI();
+        super.onResume();
     }
 
     public boolean isGooglePlayGames() {

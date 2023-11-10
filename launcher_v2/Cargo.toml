@@ -44,6 +44,7 @@ strum = { git = "https://github.com/PingPongun/strum.git", branch = "master", fe
 ] } # enum derive macros
 atomic_enum = "0.2.0"
 directories = "5.0.1"
+dunce = "1.0.4" #canonicalize paths
 sys-locale = "0.3.0" #detect system locale
 lazy_static = "1.4.0"
 # font-kit = "0.11.0" #load system fonts

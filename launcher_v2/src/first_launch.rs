@@ -289,11 +289,10 @@ impl VCMILauncher {
             all_installed = false;
         } else {
             let s = &mut self.first_launch;
-            // ui.horizontal_wrapped(|ui| {
             Grid::new(ui.next_auto_id())
                 .striped(true)
                 .min_col_width(0.0)
-                .num_columns(4)
+                .num_columns(3)
                 .show(ui, |ui| {
                     let mut show_mod = |val: &mut bool, name, text| {
                         if let Ok(mod_) = ModPath::new(name).get_mod() {
@@ -321,7 +320,6 @@ impl VCMILauncher {
                         t!("first_launch.preset.vcmi_extras_text"),
                     );
                 });
-            // });
         }
 
         ui.add_space(6.0);

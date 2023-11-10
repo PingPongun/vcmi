@@ -138,7 +138,7 @@ def SigningKeystorePath(final basePath, final keystoreFileName) {
 }
 
 def LoadSigningConfig(final signingConfigKey) {
-	final def projectRoot = "${project.projectDir}/../../../CI/android"
+	final def projectRoot = "${project.projectDir}/../../CI/android"
 	final def props = new Properties()
 	final def propFile = SigningPropertiesPath(projectRoot, signingConfigKey)
 	
