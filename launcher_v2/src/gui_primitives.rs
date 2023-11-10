@@ -13,6 +13,7 @@ use egui_struct::*;
 use indexmap::IndexSet;
 use parking_lot::RwLock;
 use rust_i18n::{set_locale, t};
+use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::hash::Hash;
 use strum::IntoEnumIterator;
@@ -190,6 +191,52 @@ impl EguiStruct for DisplayOptions {
         );
         self.resolution.scaling = c.0;
         ret
+    }
+}
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
+pub struct InterfaceScale(pub f32);
+impl Default for InterfaceScale {
+    fn default() -> Self {
+        Self(1.0)
+    }
+}
+impl_eeqclone! {InterfaceScale}
+impl EguiStruct for InterfaceScale {
+    const SIMPLE: bool = false;
+    type ConfigType<'a> = ();
+
+    fn show_primitive(
+        self: &mut Self,
+        ui: &mut Ui,
+        _config: Self::ConfigType<'_>,
+        _id: impl Hash + Clone,
+    ) -> Response {
+        ui.horizontal(|ui| {
+            let zoom_in = ui.button(t!("settings.SettingsLauncher.Zoom in"));
+            let zoom_out = ui.button(t!("settings.SettingsLauncher.Zoom out"));
+            if zoom_in.clicked() {
+                self.zoom_in()
+            }
+            if zoom_out.clicked() {
+                self.zoom_out()
+            }
+            zoom_in | zoom_out
+        })
+        .inner
+    }
+}
+impl InterfaceScale {
+    pub fn zoom_in(&mut self) {
+        self.0 *= 1.1;
+        self.normalize();
+    }
+    pub fn zoom_out(&mut self) {
+        self.0 /= 1.1;
+        self.normalize();
+    }
+    fn normalize(&mut self) {
+        self.0 = self.0.clamp(0.2, 4.0);
+        self.0 = (self.0 * 10.).round() / 10.;
     }
 }
 

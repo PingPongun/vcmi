@@ -9,6 +9,7 @@
  *
  */
 use eframe::egui;
+use egui::gui_zoom::kb_shortcuts;
 use egui::{
     include_image, Align, Align2, FontData, FontDefinitions, FontFamily, Image, ImageButton,
     ImageSource, Layout, Ui, Vec2,
@@ -60,6 +61,23 @@ impl eframe::App for VCMILauncher {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         let screen_size = ctx.screen_rect().size();
         self.mobile_view = screen_size.y > screen_size.x;
+
+        //Interface scalling
+        if let Some(npxp) = frame.info().native_pixels_per_point {
+            let scale = &mut self.settings.launcher.interface_scalling;
+            if ctx.input_mut(|i| i.consume_shortcut(&kb_shortcuts::ZOOM_RESET)) {
+                scale.0 = 1.0;
+            } else {
+                if ctx.input_mut(|i| i.consume_shortcut(&kb_shortcuts::ZOOM_IN)) {
+                    scale.zoom_in()
+                }
+                if ctx.input_mut(|i| i.consume_shortcut(&kb_shortcuts::ZOOM_OUT)) {
+                    scale.zoom_out()
+                }
+            }
+            ctx.set_pixels_per_point(scale.0 * npxp);
+        }
+
         if self.settings.launcher.setup_completed {
             let tab_count = if cfg!(any(target_os = "android", target_os = "ios")) {
                 6

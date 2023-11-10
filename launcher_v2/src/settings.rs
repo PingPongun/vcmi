@@ -27,6 +27,7 @@ use std::sync::atomic::AtomicUsize;
 use strum::*;
 use ConfigNum::*;
 
+use crate::gui_primitives::InterfaceScale;
 use crate::utils::*;
 use crate::vcmi_launcher::*;
 
@@ -127,6 +128,8 @@ pub struct SettingsGeneral {
 #[serde(default, rename_all = "camelCase")]
 #[eguis(prefix = "settings", rename_all = "Sentence")]
 pub struct SettingsLauncher {
+    pub interface_scalling: InterfaceScale,
+
     pub auto_check_repositories: Tbool,
 
     pub update_on_startup: Tbool,
