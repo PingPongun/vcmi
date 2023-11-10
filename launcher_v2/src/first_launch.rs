@@ -189,13 +189,14 @@ impl VCMILauncher {
 
     fn first_launch_show_language_set(&mut self, ui: &mut Ui) {
         ui.group_wrapped(|ui| {
-            self.settings.general.language.show_collapsing_mut(
+            self.settings.general.language.show_collapsing(
                 ui,
                 &t!("first_launch.Select your language"),
                 "Select language you prefer to use in launcher",
                 0,
                 (),
                 None,
+                "lang".into(),
             );
         });
         ui.add_space(6.0);
@@ -297,7 +298,7 @@ impl VCMILauncher {
                     let mut show_mod = |val: &mut bool, name, text| {
                         if let Ok(mod_) = ModPath::new(name).get_mod() {
                             if !mod_.active.installed() {
-                                val.show_primitive_mut(ui, ());
+                                val.show_primitive(ui, (), ());
                                 ui.label(mod_.get_name());
                                 ui.horizontal_wrapped(|ui| ui.label(text));
                                 ui.end_row();

@@ -20,6 +20,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_enum_str::Deserialize_enum_str;
 use serde_enum_str::Serialize_enum_str;
+use std::hash::Hash;
 use std::ops::Deref;
 use std::ops::DerefMut;
 use std::sync::atomic::AtomicUsize;
@@ -58,7 +59,7 @@ impl VCMILauncher {
     pub fn show_settings(&mut self, ui: &mut Ui) {
         if self
             .settings
-            .show_top_mut(
+            .show_top(
                 ui,
                 RichText::new(t!("menu.TabName.Settings")).heading(),
                 None,
@@ -413,25 +414,22 @@ macro_rules! type_optional {
             }
         }
 
-        impl EguiStructImut for $type {
-            const SIMPLE: bool = false;
-            type ConfigTypeImut = ();
-        }
         impl_eeqclone! {$type}
         impl EguiStruct for $type {
-            type ConfigType = ();
+            type ConfigType<'a> = ();
 
-            fn show_primitive_mut(
+            fn show_primitive(
                 self: &mut Self,
                 ui: &mut Ui,
-                _config: Self::ConfigType,
+                _config: Self::ConfigType<'_>,
+                id: impl Hash + Clone,
             ) -> egui::Response {
                 ui.horizontal(|ui| {
-                    let mut ret = self.$enable_ident.show_primitive_mut(ui, ());
+                    let mut ret = self.$enable_ident.show_primitive(ui, (), ());
                     if self.$enable_ident {
-                        ret |= self.$val_ident.show_primitive_mut(ui, ());
+                        ret |= self.$val_ident.show_primitive(ui, Default::default(), id);
                     } else {
-                        ret |= self.$val_ident.show_primitive(ui, ());
+                        ret |= self.$val_ident.show_primitive(ui, Default::default(), id);
                     }
                     ret
                 })

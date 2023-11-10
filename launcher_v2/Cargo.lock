@@ -1337,9 +1337,9 @@ dependencies = [
 
 [[package]]
 name = "egui_struct"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b885f319fc0e585361eb86d09d5f4f3f632642d060c1faaa482e93a26575621"
+checksum = "d6eca44277ee14d945cd398f91834d696c990c53b7f4ac2796368ce2b09b5c6c"
 dependencies = [
  "egui",
  "egui_struct_macros",
@@ -1347,9 +1347,9 @@ dependencies = [
 
 [[package]]
 name = "egui_struct_macros"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c5427e6f76dd5836eaacdfb1c136de96e702d23c6f6eecb2c8e3d3b2c460a06"
+checksum = "46b442eae7dc1b2e5112647fdff0d42d54d14738e21c7ae0ffa034637e360545"
 dependencies = [
  "convert_case",
  "darling 0.20.3",

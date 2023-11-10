@@ -115,50 +115,48 @@ mod.select.All: All
 mod.select.None: None
 mod.select.Select: Select
 mod.select.Selected: Selected
-settings.Settings.General: General
-settings.Settings.Launcher: Launcher
-settings.Settings.Server: Server
-settings.Settings.Video: Video
-settings.SettingsGeneral.Autosave each X turn (0 = off): Autosave each X turn (0 = off)
-settings.SettingsGeneral.Autosave limit (0 = off): Autosave limit (0 = off)
-settings.SettingsGeneral.Autosave prefix: Autosave prefix
-settings.SettingsGeneral.Game data language: Game data language
-settings.SettingsGeneral.Language: VCMI language
-settings.SettingsGeneral.Music: Music
-settings.SettingsGeneral.Sound: Sound
-settings.SettingsGeneral.language.hint.Select language you prefer to use in launcher: Select language you prefer to use in launcher
-settings.SettingsGeneral.save_prefix.hint.empty = map_name_prefix: empty = map_name_prefix
-settings.SettingsLauncher.Auto check repositories: Auto check repositories
-settings.SettingsLauncher.Default mod repository: Default mod repository
-settings.SettingsLauncher.Extra repository: Extra repository
-settings.SettingsLauncher.Update on startup: Update on startup
+settings.Settings.general: General
+settings.Settings.launcher: Launcher
+settings.Settings.server: Server
+settings.Settings.video: Video
+settings.SettingsGeneral.autosave_count_limit: Autosave limit (0 = off)
+settings.SettingsGeneral.game_data_language: Game data language
+settings.SettingsGeneral.language: Language
+settings.SettingsGeneral.language.__hint.: Select language you prefer to use in launcher
+settings.SettingsGeneral.music: Music
+settings.SettingsGeneral.save_frequency: Autosave each X turn (0 = off)
+settings.SettingsGeneral.save_prefix: Autosave prefix
+settings.SettingsGeneral.save_prefix.__hint.: empty = map_name_prefix
+settings.SettingsGeneral.sound: Sound
+settings.SettingsLauncher.auto_check_repositories: Auto check repositories
+settings.SettingsLauncher.default_repository_enabled: Default mod repository
+settings.SettingsLauncher.extra_repository: Extra repository
+settings.SettingsLauncher.update_on_startup: Update on startup
 settings.SettingsServer.AIAdventure.Nullkiller: Nullkiller
-settings.SettingsServer.AIAdventure.Nullkiller.hint.Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies): Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies)
+settings.SettingsServer.AIAdventure.Nullkiller.__hint: Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies)
 settings.SettingsServer.AIAdventure.VCAI: VCAI
 settings.SettingsServer.AIBattle.BattleAI: Battle AI
 settings.SettingsServer.AIBattle.StupidAI: Stupid AI
-settings.SettingsServer.AIBattle.StupidAI.hint.More stupid, but faster AI in battles: More stupid, but faster AI in battles
-settings.SettingsServer.Allies adventure AI: Allies adventure AI
-settings.SettingsServer.Allies battle AI: Allies battle AI
-settings.SettingsServer.Enemies adventure AI: Enemies adventure AI
-settings.SettingsServer.Enemies battle AI: Enemies battle AI
-settings.SettingsServer.Network port: Network port
-settings.SettingsServer.Neutrals battle AI: Neutrals battle AI
+settings.SettingsServer.AIBattle.StupidAI.__hint: More stupid, but faster AI in battles
 settings.SettingsServer.VideoCursor.Hardware: Hardware
 settings.SettingsServer.VideoCursor.Software: Software
-settings.SettingsVideo.Cursor: Cursor
-settings.SettingsVideo.Display mode: Display mode
-settings.SettingsVideo.Framerate Limit: Framerate Limit
+settings.SettingsServer.allied_ai: Allies adventure AI
+settings.SettingsServer.enemy_ai: Enemies battle AI
+settings.SettingsServer.friendly_ai: Allies battle AI
+settings.SettingsServer.neutral_ai: Neutrals battle AI
+settings.SettingsServer.player_ai: Enemies adventure AI
+settings.SettingsServer.port: Network port
 settings.SettingsVideo.FullscreenMode.BorderlessFullscreen: BorderlessFullscreen
-? settings.SettingsVideo.FullscreenMode.BorderlessFullscreen.hint.Game will run in a window that covers entirely of your screen, using same resolution as your screen
-: Game will run in a window that covers entirely of your screen, using same resolution as your screen
+settings.SettingsVideo.FullscreenMode.BorderlessFullscreen.__hint: Game will run in a window that covers entirely of your screen, using same resolution as your screen
 settings.SettingsVideo.FullscreenMode.ExclusiveFullscreen: ExclusiveFullscreen
-? settings.SettingsVideo.FullscreenMode.ExclusiveFullscreen.hint.Game will cover entirety of your screen and will use selected resolution
-: Game will cover entirety of your screen and will use selected resolution
+settings.SettingsVideo.FullscreenMode.ExclusiveFullscreen.__hint: Game will cover entirety of your screen and will use selected resolution
 settings.SettingsVideo.FullscreenMode.Windowed: Windowed
-settings.SettingsVideo.FullscreenMode.Windowed.hint.Game will run inside a window that covers part of your screen: Game will run inside a window that covers part of your screen
+settings.SettingsVideo.FullscreenMode.Windowed.__hint: Game will run inside a window that covers part of your screen
 settings.SettingsVideo.Interface scalling: Interface scalling
-settings.SettingsVideo.Show intro: Show intro
+settings.SettingsVideo.cursor: Cursor
+settings.SettingsVideo.display_mode: Display mode
+settings.SettingsVideo.show_intro: Show intro
+settings.SettingsVideo.targetfps: Framerate Limit
 toasts.error.Failed to open mod file!: Failed to open mod file!
 toasts.error.Failed to open settings file!: Failed to open settings file!
 toasts.error.HoMM data copy failed!: HoMM data copy failed!

@@ -8,12 +8,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-use egui::{Color32, InnerResponse, Response, RichText, Ui};
+use egui::{Color32, Id, InnerResponse, Response, RichText, Ui};
 use egui_struct::*;
 use indexmap::IndexSet;
 use parking_lot::RwLock;
 use rust_i18n::{set_locale, t};
 use std::fmt::Display;
+use std::hash::Hash;
 use strum::IntoEnumIterator;
 
 use crate::mod_manager::{ModMng, ModPath};
@@ -55,21 +56,15 @@ lazy_static::lazy_static! {
     .collect();
 }
 
-impl EguiStructImut for GameLanguage {
-    type ConfigTypeImut = ();
-    fn show_primitive(&self, ui: &mut Ui, _config: Self::ConfigTypeImut) -> Response {
-        let langs = GAME_LANGUAGES.read();
-        if let Some(lang) = langs.get(&self.0) {
-            ui.label(lang)
-        } else {
-            ui.label(self.0.clone())
-        }
-    }
-}
 impl_eeqclone! {GameLanguage}
 impl EguiStruct for GameLanguage {
-    type ConfigType = ();
-    fn show_primitive_mut(&mut self, ui: &mut Ui, _config: Self::ConfigType) -> Response {
+    type ConfigType<'a> = ();
+    fn show_primitive(
+        &mut self,
+        ui: &mut Ui,
+        _config: Self::ConfigType<'_>,
+        id: impl Hash,
+    ) -> Response {
         let mut langs = GAME_LANGUAGES.write();
         let mut current = if let Some(idx) = langs.get_index_of(&self.0) {
             idx
@@ -77,42 +72,32 @@ impl EguiStruct for GameLanguage {
             langs.insert(self.0.clone(), self.0.clone());
             langs.get_index_of(&self.0).unwrap()
         };
-        let ret = egui::ComboBox::from_id_source(ui.next_auto_id()).show_index(
-            ui,
-            &mut current,
-            langs.len(),
-            |i| &langs[i],
-        );
+        let ret =
+            egui::ComboBox::from_id_source(id)
+                .show_index(ui, &mut current, langs.len(), |i| &langs[i]);
         if ret.changed() {
             *self = GameLanguage(langs.get_index(current).unwrap().0.clone());
         }
         ret
     }
 }
-impl EguiStructImut for Language {
-    type ConfigTypeImut = ();
-    fn show_primitive(&self, ui: &mut Ui, _config: Self::ConfigTypeImut) -> Response {
-        let mut idx = self.int();
-        if idx >= APP_LANGUAGES.len() {
-            idx = 0;
-        }
-        ui.label(APP_LANGUAGES[idx].clone())
-    }
-}
+
 impl_eeqclone! {Language}
 impl EguiStruct for Language {
-    type ConfigType = ();
-    fn show_primitive_mut(&mut self, ui: &mut Ui, _config: Self::ConfigType) -> Response {
+    type ConfigType<'a> = ();
+    fn show_primitive(
+        &mut self,
+        ui: &mut Ui,
+        _config: Self::ConfigType<'_>,
+        id: impl Hash,
+    ) -> Response {
         let mut idx = self.int();
         if idx >= APP_LANGUAGES.len() {
             idx = 0;
         }
-        let ret = egui::ComboBox::from_id_source(ui.next_auto_id()).show_index(
-            ui,
-            &mut idx,
-            APP_LANGUAGES.len(),
-            |i| &APP_LANGUAGES[i],
-        );
+        let ret =
+            egui::ComboBox::from_id_source(id)
+                .show_index(ui, &mut idx, APP_LANGUAGES.len(), |i| &APP_LANGUAGES[i]);
         if ret.changed() {
             *self = Language::from_repr(idx).unwrap();
             set_locale(&LANGUAGES_SHORT[idx]);
@@ -138,29 +123,27 @@ enum FullscreenMode {
     ExclusiveFullscreen,
 }
 
-impl EguiStructImut for DisplayOptions {
-    const SIMPLE: bool = false;
-    type ConfigTypeImut = ();
-
-    fn has_childs(&self) -> bool {
-        true
-    }
-
+impl_eeqclone! {DisplayOptions}
+impl EguiStruct for DisplayOptions {
+    type ConfigType<'a> = ();
     fn has_primitive(&self) -> bool {
         true
     }
-}
-impl_eeqclone! {DisplayOptions}
-impl EguiStruct for DisplayOptions {
-    type ConfigType = ();
-
-    fn show_primitive_mut(self: &mut Self, ui: &mut Ui, _config: Self::ConfigType) -> Response {
+    fn has_childs(&self) -> bool {
+        true
+    }
+    fn show_primitive(
+        self: &mut Self,
+        ui: &mut Ui,
+        _config: Self::ConfigType<'_>,
+        id: impl Hash + Clone,
+    ) -> Response {
         let mut fm = match (self.fullscreen, self.real_fullscreen) {
             (_, true) => FullscreenMode::ExclusiveFullscreen,
             (true, false) => FullscreenMode::BorderlessFullscreen,
             (false, false) => FullscreenMode::Windowed,
         };
-        let ret = ui.horizontal(|ui| fm.show_primitive_mut(ui, ())).inner;
+        let ret = ui.horizontal(|ui| fm.show_primitive(ui, (), id)).inner;
         if ret.changed() {
             (self.fullscreen, self.real_fullscreen) = match fm {
                 FullscreenMode::Windowed => (false, false),
@@ -171,18 +154,19 @@ impl EguiStruct for DisplayOptions {
         ret
     }
 
-    fn show_childs_mut(
+    fn show_childs(
         self: &mut Self,
         ui: &mut Ui,
         indent_level: isize,
         response: Response,
         reset2: Option<&Self>,
+        id: Id,
     ) -> Response {
         let mut ret = response;
         //(640,480),(800,600),(1024,768),(1280,720),(1360,768),(1366,768),(1280,1024),(1600,900),(1680,1050),(1920,1080)
         // TODO this will require breaking into eframe internals OR dropping eframe in favor of raw winit+wgpu?
         // if (self.fullscreen, self.real_fullscreen) != (true, false) {
-        //     ret |= self.resolution.resolution.show_collapsing_mut(
+        //     ret |= self.resolution.resolution.show_collapsing(
         //         ui,
         //         t!("settings.SettingsVideo.Resolution"),
         //         "",
@@ -191,14 +175,20 @@ impl EguiStruct for DisplayOptions {
         //         reset2.map(|x| &x.resolution.resolution),
         //     );
         // }
-        ret |= self.resolution.scaling.show_collapsing_mut(
+        let a = [
+            50, 60, 75, 90, 100, 110, 125, 150, 175, 200, 225, 250, 300, 350, 400,
+        ];
+        let mut c = egui_struct::Combobox(self.resolution.scaling);
+        ret |= c.show_collapsing(
             ui,
             t!("settings.SettingsVideo.Interface scalling"),
             "",
             indent_level,
-            Default::default(),
-            reset2.map(|x| &x.resolution.scaling),
+            Some(&mut a.into_iter()),
+            reset2.map(|x| Combobox(x.resolution.scaling)).as_ref(),
+            id,
         );
+        self.resolution.scaling = c.0;
         ret
     }
 }
