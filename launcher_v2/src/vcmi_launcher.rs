@@ -17,13 +17,14 @@ use egui::{
 use egui_extras::{Size, Strip, StripBuilder};
 use egui_toast::Toasts;
 use rust_i18n::{t, ToStringI18N};
+use std::sync::atomic::Ordering::Relaxed;
 use std::time::Duration;
 
 use crate::about_project::VcmiUpdatesJson;
 use crate::first_launch::FirstLaunchState;
 use crate::mod_manager::ModMng;
 use crate::settings::Settings;
-use crate::utils::AsyncHandle;
+use crate::utils::{AsyncHandle, MOBILE_VIEW};
 
 rust_i18n::i18n!("./translate", fallback = "en");
 #[derive(ToStringI18N, Default, PartialEq, Clone, Copy)]
@@ -45,7 +46,6 @@ pub struct VCMILauncher {
     pub tab: TabName,
     pub update_fetch: AsyncHandle<VcmiUpdatesJson, ()>,
     pub mod_mng: ModMng,
-    pub mobile_view: bool,
     allowed_to_close: bool,
     show_confirmation_dialog: bool,
 }
@@ -60,7 +60,7 @@ impl eframe::App for VCMILauncher {
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         let screen_size = ctx.screen_rect().size();
-        self.mobile_view = screen_size.y > screen_size.x;
+        MOBILE_VIEW.store(screen_size.y > screen_size.x, Relaxed);
 
         //Interface scalling
         if let Some(npxp) = frame.info().native_pixels_per_point {
@@ -129,7 +129,7 @@ impl eframe::App for VCMILauncher {
                 strip.cell(|ui| show_tab_button(ui, TabName::StartGame, start_game_enabled));
             };
 
-            if self.mobile_view {
+            if MOBILE_VIEW.load(Relaxed) {
                 //mobile view
                 egui::TopBottomPanel::bottom("tabs_panel")
                     .exact_height(tab_panel_height + 6.)

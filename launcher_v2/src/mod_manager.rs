@@ -64,7 +64,7 @@ impl VCMILauncher {
             let mng = &mut self.mod_mng;
             if let Some(selected) = &mng.selected_mod {
                 if let Some(selected) = mods.get_mod(selected) {
-                    if self.mobile_view {
+                    if MOBILE_VIEW.load(Relaxed) {
                         //mobile view
                         selected.show_desc(ui, mng);
                     } else {
@@ -89,7 +89,7 @@ impl VCMILauncher {
             ui.centered_and_justified(|ui| ui.spinner());
         }
         if let Some(url) = &self.mod_mng.zoomed_screenshot {
-            if !self.mobile_view {
+            if !MOBILE_VIEW.load(Relaxed) {
                 let url = url.clone();
                 egui::Window::new("Screenshot viewer")
                     .title_bar(false)
@@ -841,15 +841,16 @@ mod local {
                     let width = ui.available_size()[0];
                     self.volatile.screenshots.iter().for_each(|url| {
                         ui.separator();
-                        if Image::from_uri(url)
+                        let img = Image::from_uri(url)
                             .show_loading_spinner(true)
                             .max_width(width)
-                            .fit_to_original_size(1.0)
-                            .sense(Sense::click())
-                            .ui(ui)
-                            .clicked()
-                        {
-                            mng.zoomed_screenshot = Some(url.clone());
+                            .fit_to_original_size(1.0);
+                        if MOBILE_VIEW.load(Relaxed) {
+                            img.ui(ui);
+                        } else {
+                            if img.sense(Sense::click()).ui(ui).clicked() {
+                                mng.zoomed_screenshot = Some(url.clone());
+                            }
                         }
                     });
                 });

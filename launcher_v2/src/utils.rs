@@ -25,6 +25,7 @@ use std::fmt::Display;
 use std::future::Future;
 use std::io::Read;
 use std::path::Path;
+use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
@@ -33,6 +34,7 @@ use crate::platform::{VDirs, VDIRS};
 use crate::settings::{AtomicLanguage, ExtraRepository};
 
 pub static LANGUAGE: AtomicLanguage = AtomicLanguage::new();
+pub static MOBILE_VIEW: AtomicBool = AtomicBool::new(false);
 pub static EXTRA_REPO: RwLock<ExtraRepository> =
     RwLock::new(ExtraRepository::new(false, String::new()));
 
