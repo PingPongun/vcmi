@@ -33,7 +33,6 @@
 
 - lobby
 - hidden mods(compatibility & lang)
-- extra repo support
 - [Android] [iOS] select homm data location for copying
 - add missing settings (select display resolution- is this still needed when map zooming & interface scalling are available?)
 - detect homm lang (?)

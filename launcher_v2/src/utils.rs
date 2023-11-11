@@ -16,6 +16,7 @@
 
 use anyhow::{bail, Context};
 use egui_toast::Toast;
+use parking_lot::RwLock;
 use reqwest::{Client, IntoUrl};
 use rust_i18n::t;
 use serde::de::DeserializeOwned;
@@ -29,9 +30,11 @@ use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
 
 use crate::platform::{VDirs, VDIRS};
-use crate::settings::AtomicLanguage;
+use crate::settings::{AtomicLanguage, ExtraRepository};
 
 pub static LANGUAGE: AtomicLanguage = AtomicLanguage::new();
+pub static EXTRA_REPO: RwLock<ExtraRepository> =
+    RwLock::new(ExtraRepository::new(false, String::new()));
 
 pub mod hash_helper {
     pub type IndexMap<Q, V> = indexmap::IndexMap<Q, V, ahash::RandomState>;

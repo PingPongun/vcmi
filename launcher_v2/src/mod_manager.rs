@@ -301,6 +301,15 @@ mod local {
     }
     use ModTriState::*;
 
+    #[derive(Clone, Debug, Default, PartialEq, ToStringI18N)]
+    #[module(mod)]
+    pub enum ModSource {
+        #[default]
+        Unknown,
+        MainRepository,
+        ExtraRepository,
+    }
+
     #[derive(Debug, Default)]
     pub struct ModVolatile {
         pub path: ModPath,
@@ -312,6 +321,7 @@ mod local {
         selected: AtomicBool,
         unfolded: AtomicBool, //has meaning only when there are some submods
         pub ongoing_op: AtomicBool,
+        pub src: ModSource,
         pub mod_file: ModFile,
         pub mod_file_update: Option<ModFile>,
         pub mod_download_url: String,
@@ -751,6 +761,10 @@ mod local {
                     transl.name.show(ui, &t!("mod.Name"));
                     mf.version.show(ui, &t!("mod.Version"));
                     mf.mod_type.to_string_i18n().show(ui, &t!("mod.Mod type"));
+                    self.volatile
+                        .src
+                        .to_string_i18n()
+                        .show(ui, &t!("mod.Mod source"));
                     transl.author.show(ui, &t!("mod.Author"));
                     mf.contact.show(ui, &t!("mod.Contact"));
                     format!("{:2}", transl.size).show(ui, &t!("mod.Download size [MB]"));
@@ -1159,6 +1173,7 @@ mod ops {
         Uninstall,
         FindUpdates,
     }
+    use reqwest::IntoUrl;
     use ModOpType::*;
 
     #[atomic_enum]
@@ -1525,10 +1540,25 @@ mod ops {
             }
         }
         async fn _fetch_updates() -> anyhow::Result<()> {
-            const CHECK_UPDATES_URL: &'static str =
+            const MAIN_REPO: &'static str =
                 "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.4.json"; //TODO gen from launcher version
+
+            Self::_fetch_updates_single(MAIN_REPO, ModSource::MainRepository).await?;
+            let extra = EXTRA_REPO.read().clone();
+            if extra.extra_repository_enabled {
+                Self::_fetch_updates_single(extra.extra_repository_url, ModSource::ExtraRepository)
+                    .await?;
+            }
+
+            Toast::info(t!("toasts.mod.Mod updates list downloaded!"));
+            Ok(())
+        }
+        async fn _fetch_updates_single(
+            url: impl IntoUrl + Display,
+            source: ModSource,
+        ) -> anyhow::Result<()> {
             let toast = t!("toasts.mod.Mod updates check failed!");
-            let online_mods: ModUpdatesList = get_file_from_url(CHECK_UPDATES_URL, &toast).await?;
+            let online_mods: ModUpdatesList = get_file_from_url(url, &toast).await?;
 
             let m = online_mods.into_iter().map(|(name, mut mod_)| {
                 let toast = toast.clone();
@@ -1543,6 +1573,7 @@ mod ops {
                 if let Ok((name, online_mod)) = x {
                     if let Some(online_file) = &mut online_mod.mod_file {
                         online_file.download_size = online_mod.download_size;
+
                         if let Some(mod_) = mods.0.get_mut(name) {
                             if online_file.update_available(&mod_.volatile.mod_file.version) {
                                 // // use this if download link is stored in modfile
@@ -1553,20 +1584,24 @@ mod ops {
                                 //         .join("UPDATE_mod.json"),
                                 //     online_file,
                                 // );
-                                mod_.volatile.mod_file.download_size = online_file.download_size;
                                 mod_.volatile.mod_file_update = Some(online_file.clone());
                             }
+                            mod_.volatile.mod_file.download_size = online_file.download_size;
+                            mod_.volatile.src = source.clone();
                             mod_.volatile.mod_download_url = online_mod.download.clone();
                             mod_.volatile.screenshots = online_mod.screenshots.clone();
                         } else {
-                            mods.0.insert(name.clone(), Mod::new(name, online_mod));
+                            let entry = mods
+                                .0
+                                .entry(name.clone())
+                                .or_insert(Mod::new(name, online_mod));
+                            entry.volatile.src = source.clone();
                         }
                     }
                 }
             });
             mods.sort();
-            Toast::info(t!("toasts.mod.Mod updates list downloaded!"));
-            log::info!("Mod updates list downloaded!",);
+            log::info!("Mod updates list downloaded {:?}!", source);
             Ok(())
         }
     }

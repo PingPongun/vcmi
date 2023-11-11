@@ -39,6 +39,7 @@ impl VCMILauncher {
 
         set_locale(self.settings.general.language.short());
         LANGUAGE.set(self.settings.general.language.clone());
+        *EXTRA_REPO.write() = self.settings.launcher.extra_repository.clone();
 
         // check if homm data is present in vcmi dir
         if let Err(err) = check_data_dir_valid(&get_dirs().user_data)
@@ -138,6 +139,7 @@ pub struct SettingsLauncher {
     pub default_repository_enabled: Tbool,
 
     #[serde(flatten)]
+    #[eguis(on_change = (|field: &mut ExtraRepository| *EXTRA_REPO.write() = field.clone()))]
     pub extra_repository: ExtraRepository,
 
     #[eguis(skip)]
@@ -405,14 +407,19 @@ macro_rules! type_optional {
         #[derive(Clone, PartialEq, Serialize, Deserialize)]
         #[serde(default, rename_all = "camelCase")]
         pub struct $type {
-            $enable_ident: bool,
-            $val_ident: String,
+            pub $enable_ident: bool,
+            pub $val_ident: String,
         }
         impl Default for $type {
             fn default() -> Self {
+                Self::new($enable_default, $val_default)
+            }
+        }
+        impl $type {
+            pub const fn new($enable_ident: bool, $val_ident: String) -> Self {
                 Self {
-                    $enable_ident: $enable_default,
-                    $val_ident: $val_default,
+                    $enable_ident,
+                    $val_ident,
                 }
             }
         }
