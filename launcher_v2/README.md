@@ -58,7 +58,6 @@
 - change some settings serialization (e.g. extraRepositoryEnabled & extraRepositoryURL as single item; requires changes in client&server)
 - Documentation & tests
 - UI/visuals improvement
-- refresh translations from build.rs
 - Use system fonts (?)
 
 ## Developement
@@ -126,19 +125,28 @@ adb shell am start -n eu.vcmi.vcmi/.MainActivity
 
 ### Translations
 
-This project uses i18n crate for translations. To create new translated string add `t!` macro call e.g. `t!("Translated text key")`. This would look for line `Translated text key: Translated text` in locale related file in translate dir and (simplifying) evaluate to String `"Translated text"`.
+This project uses modified `rust-i18n` crate for translations. To create new translated string add `t!` macro call e.g. `t!("Translated text key")`. This would look for line `Translated text key: Translated text` in locale related file in translate dir and (simplifying) evaluate to String `"Translated text"`.
 Teoreticly translation key can be arbitrary, to introduce some order most of them follow these rules:
 
 - Prefix translation key with some kind of pseudo-path indicating where it is used e.g. `about.` for file "about_project.rs" and about view; `toasts.error.` for msg. in toast with error severity.
 - If translated text is short, translation key should be simply text in english e.g. `"about.Check for updates"`
-- If text is long, use key that is short and describes "intent" of text, also add whole text to `translate/en.yml`. E.g. `first_launch.SelectHommDataLocation: Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.`
-- Translation-key shall not contain any special characters ('.' are tolerable, but interfere with placing default translation)
+- If text is long, use key that is short and describes "intent" of text, add whole text to doc comment. E.g.
+
+  ```Rust
+  t!(
+    ///Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically
+    "first_launch.SelectHommLocation"
+  )
+  ```
+
+  results in `first_launch.SelectHommLocation: Alternatively, you [...] automatically.`
+- Translation-key shall better not contain any special characters (trailling '.' are ok, but others may interfere with placing default translation) (if special character is needed consider using syntax with doc comment)
 - For generating translations from enum are available two macros:
-  - `EnumComboboxI18N` which generates translated UI implementation (`.show_ui()` method) for this enum in form of combobox.
+  - `EguiStruct`(from crate `egui_struct`) which generates translated UI implementation (eg. `.show_primitive()` method) for this enum in form of combobox. Also works for structs.
 
     ```Rust
-    #[derive(Default, EnumComboboxI18N)]
-    #[module(settings.SettingsServer)]
+    #[derive(Default, EguiStruct)]
+    #[eguis(prefix="settings.SettingsServer", rename_all = "Sentence")]
     enum AIAdventure {
         #[default]
         Nullkiller,
@@ -146,10 +154,11 @@ Teoreticly translation key can be arbitrary, to introduce some order most of the
     }
     ```
 
-  - `ToStringI18N` which provides method `.to_string_i18n()` which returns translated string.
+  - `ToStringI18N`(from crate `rust-i18n`) which provides method `.to_string_i18n()` which returns translated string.
   
     ```Rust
     #[derive(ToStringI18N)]
+    #[module(prefix)]
     pub enum InitializationState {
         #[default]
         Unknown = 0,
@@ -163,8 +172,8 @@ Teoreticly translation key can be arbitrary, to introduce some order most of the
 
   - Both of them generates keys in form Module.EnumName.EnumVariant for example above following keys will be generated: `settings.SettingsServer.AIAdventure.Nullkiller` & `settings.SettingsServer.AIAdventure.VCAI`.
 - All keys can be extracted using modified `cargo i18n`
-  - Instalation: `cargo install --git "https://github.com/PingPongun/rust-i18n.git" --branch "develop" --bin cargo-i18n rust-i18n`
-  - New exported keys are in files `TODO.@LOCALE@.yml` with default values taken from default locale(`en`) (if not available, from last part of a key)
+  - **Instalation: `cargo install --git "https://github.com/PingPongun/rust-i18n.git"  --bin cargo-i18n --features="extractor" rust-i18n`**
+  - **Usage: `cargo i18n --all-features --bin vcmilauncherv2`**
+  - New exported keys are in files `TODO.@LOCALE@.yml` with default values taken from default locale(`en`) (if not available, from last part of a key) (if doc comment is used, entry is placed automaticly in `en.yml`)
   - After translating key add `DONE` on begining of its translation and on next `cargo i18n` invocation this value would be transfered to file `@LOCALE@.yml`
   - If key from file `@LOCALE@.yml` has been removed from code, it will be moved to file `REMOVED.@LOCALE@.yml` on `cargo i18n` invocation.
-  - As some `t!()` calls may be hidden behind macros, all code should be expanded to `translate/expanded.rs` before calling `cargo i18n` (on powershell simply call refresh_translations.ps1, on other shells call equivalent cmds)

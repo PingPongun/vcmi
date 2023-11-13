@@ -200,7 +200,16 @@ impl VCMILauncher {
             );
         });
         ui.add_space(6.0);
-        ui.label(t!("first_launch.intro_message"));
+        ui.label(t!(
+            /// Thank you for installing VCMI!
+            ///
+            /// Before you can start playing, there are a few more steps that need to be completed.
+            ///
+            /// Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
+            ///
+            /// Heroes® of Might and Magic® III HD is currently not supported!
+            "first_launch.intro_message"
+        ));
         ui.add_space(6.0);
         crate::about_project::show_join_us(ui);
         ui.add_space(6.0);
@@ -239,24 +248,31 @@ impl VCMILauncher {
             HOMMDataState::NotSelected | HOMMDataState::NotFound => {
                 if cfg!(target_os = "linux") {
                     ui.group_wrapped(|ui| {
-                        ui.label(t!("first_launch.HintVCMIBuilder"));
+                        ui.label(t!(
+                            ///If you don't have a copy of Heroes III installed, you can use our automatic installation tool "vcmibuilder", which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.
+                            "first_launch.HintVCMIBuilder"));
                         ui.hyperlink_to("wiki", "https://wiki.vcmi.eu/Installation_on_Linux#Install_data_using_vcmibuilder_script_.28recommended_for_non-Flatpak_installs.29");
                     });
                 }
                 ui.group_wrapped(|ui| {
-                    ui.label(t!("first_launch.PleaseCopyHommData"));
-                    if ui
-                        .button(t!("first_launch.PleaseCopyHommDataBtn"))
-                        .clicked()
-                    {
+                    ui.label(t!(
+                        ///To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.
+                        "first_launch.CopyHomm"
+                    ));
+                    if ui.button(t!("first_launch.CopyHomm.Check again")).clicked() {
                         self.first_launch_spawn_homm_data_search()
                     }
                 });
                 #[cfg(all(not(target_os = "android"), not(target_os = "ios")))]
                 ui.group_wrapped(|ui| {
-                    ui.label(t!("first_launch.SelectHommDataLocation"));
+                    ui.label(t!(
+                        ///Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.
+                        "first_launch.SelectHommLocation"
+                    ));
                     if ui
-                        .button(t!("first_launch.SelectHommDataLocationBtn"))
+                        .button(t!(
+                            "first_launch.SelectHommLocation.Select HOMM data directory"
+                        ))
                         .clicked()
                     {
                         self.first_launch_spawn_homm_data_cpy()
@@ -277,7 +293,7 @@ impl VCMILauncher {
     fn first_launch_show_preset_mods(&mut self, ui: &mut Ui) {
         let mut all_installed = true;
 
-        ui.heading(t!("first_launch.preset.Install some mods now"));
+        ui.heading(t!("first_launch.preset.Install some mods now..."));
         ui.label(t!(
             "first_launch.preset.Or install them later from \"Mods\" tab"
         ));
@@ -307,17 +323,29 @@ impl VCMILauncher {
                         true
                     };
 
-                    all_installed &=
-                        show_mod(&mut s.hota, "hota", t!("first_launch.preset.hota_text"));
+                    all_installed &= show_mod(
+                        &mut s.hota,
+                        "hota",
+                        t!(
+                            ///Install compatible version of "Horn of the Abyss", a fan-made Heroes III expansion ported by the VCMI team
+                            "first_launch.preset.hota_text"
+                        ),
+                    );
                     all_installed &= show_mod(
                         &mut s.wog,
                         "wake-of-gods",
-                        t!("first_launch.preset.wog_text"),
+                        t!(
+                            ///Install compatible version of "In The Wake of Gods", a fan-made Heroes III expansion
+                            "first_launch.preset.wog_text"
+                        ),
                     );
                     all_installed &= show_mod(
                         &mut s.vcmi_extras,
                         "vcmi-extras",
-                        t!("first_launch.preset.vcmi_extras_text"),
+                        t!(
+                            ///Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles
+                            "first_launch.preset.vcmi_extras_text"
+                        ),
                     );
                 });
         }
@@ -359,6 +387,7 @@ pub struct FirstLaunchState {
 
 #[atomic_enum]
 #[derive(Default, PartialEq, ToStringI18N)]
+#[module(first_launch)]
 pub enum HOMMDataState {
     #[default]
     CheckingVCMIDirs = 0,
@@ -374,6 +403,7 @@ impl Default for AtomicHOMMDataState {
 }
 
 #[derive(Default, PartialEq, PartialOrd, Clone, Copy, ToStringI18N)]
+#[module(first_launch)]
 pub enum InitializationState {
     #[default]
     Unknown = 0,

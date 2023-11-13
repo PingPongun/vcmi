@@ -1,15 +1,4 @@
 _version: 1
-HOMMDataState.CheckingSelectedPath: Checking selected path
-HOMMDataState.CheckingVCMIDirs: Checking VCMI dirs
-HOMMDataState.Found: Found
-HOMMDataState.NotFound: Not found
-HOMMDataState.NotSelected: Not selected
-InitializationState.Finished: Finished
-InitializationState.GetHoMMData: Get HoMM data
-InitializationState.PresetMods: Preset mods
-InitializationState.ProcessingData: Processing data
-InitializationState.SetLanguage: Set language
-InitializationState.Unknown: Unknown
 _common.Disable: Disable
 _common.Enable: Enable
 _common.Error: Error
@@ -32,33 +21,37 @@ about.VCMI is up-to-date!: VCMI is up-to-date!
 about.VCMI update available!: VCMI update available!
 about.join_us: Have a question? Found a bug? Want to help? Join us!
 first_launch.Almost there...: Almost there...
+first_launch.CopyHomm: To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.
+first_launch.CopyHomm.Check again: Check again
+first_launch.HOMMDataState.CheckingSelectedPath: Checking selected path
+first_launch.HOMMDataState.CheckingVCMIDirs: Checking VCMI dirs
+first_launch.HOMMDataState.Found: Found
+first_launch.HOMMDataState.NotFound: Not found
+first_launch.HOMMDataState.NotSelected: Not selected
 first_launch.HintVCMIBuilder: If you don't have a copy of Heroes III installed, you can use our automatic installation tool "vcmibuilder", which only requires the GoG.com Heroes III installer. Please visit our wiki for detailed instructions.
+first_launch.InitializationState.Finished: Finished
+first_launch.InitializationState.GetHoMMData: Get HoMM data
+first_launch.InitializationState.PresetMods: Preset mods
+first_launch.InitializationState.ProcessingData: Processing data
+first_launch.InitializationState.SetLanguage: Set language
+first_launch.InitializationState.Unknown: Unknown
 first_launch.Locate Heroes III data files: Locate Heroes III data files
 first_launch.Next: Next
-first_launch.PleaseCopyHommData: To run VCMI, Heroes III data files need to be present in one of the specified locations. Please copy the Heroes III data to one of these directories.
-first_launch.PleaseCopyHommDataBtn: Check again
 first_launch.Select your language: Select your language
-first_launch.SelectHommDataLocation: Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.
-first_launch.SelectHommDataLocationBtn: Select HOMM data directory
+first_launch.SelectHommLocation: Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.
+first_launch.SelectHommLocation.Select HOMM data directory: Select HOMM data directory
 first_launch.VCMI data directories: VCMI data directories
 first_launch.VCMI data state: VCMI data state
 first_launch.VCMI prepares necessary files.: VCMI prepares necessary files.
-first_launch.intro_message: |
-  Thank you for installing VCMI!
-
-  Before you can start playing, there are a few more steps that need to be completed.
-
-  Please keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
-
-  Heroes® of Might and Magic® III HD is currently not supported!
-first_launch.preset.Install some mods now: Install some mods now...
+first_launch.intro_message: "Thank you for installing VCMI!\r\n\r\nBefore you can start playing, there are a few more steps that need to be completed.\r\n\r\nPlease keep in mind that in order to use VCMI you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.\r\n\r\nHeroes® of Might and Magic® III HD is currently not supported!"
+first_launch.preset.Install some mods now...: Install some mods now...
 first_launch.preset.Or install them later from "Mods" tab: '...or install them later from "Mods" tab'
 first_launch.preset.hota_text: Install compatible version of "Horn of the Abyss", a fan-made Heroes III expansion ported by the VCMI team
 first_launch.preset.vcmi_extras_text: Install mod that provides various interface improvements, such as better interface for random maps and selectable actions in battles
 first_launch.preset.wog_text: Install compatible version of "In The Wake of Gods", a fan-made Heroes III expansion
-general.Are you sure you want to quit? Launcher is performing some background operations.: Are you sure you want to quit? Launcher is performing some background operations.
 general.Failed to start game!: Failed to start game!
 general.Failed to start map editor!: Failed to start map editor!
+general.confirm_exit: Are you sure you want to quit? Launcher is performing some background operations.
 menu.TabName.About: About VCMI
 menu.TabName.Downloads: Downloads
 menu.TabName.Lobby: Lobby
@@ -79,12 +72,16 @@ mod.Incompatible VCMI version!: Incompatible VCMI version!
 mod.Install: Install
 mod.License name: License name
 mod.Missing dependencies: Missing dependencies
+mod.Mod source: Mod source
 mod.Mod type: Mod type
 mod.ModOpType.FindUpdates: Find updates
 mod.ModOpType.InitMods: Init mods
 mod.ModOpType.Install: Install
 mod.ModOpType.Uninstall: Uninstall
 mod.ModOpType.Update: Update
+mod.ModSource.ExtraRepository: Extra repository
+mod.ModSource.MainRepository: Main repository
+mod.ModSource.Unknown: Unknown
 mod.ModSubOp.Downloading: Downloading
 mod.ModSubOp.Processing: Processing
 mod.ModSubOp.Unpacking: Unpacking
@@ -128,9 +125,12 @@ settings.SettingsGeneral.save_frequency: Autosave each X turn (0 = off)
 settings.SettingsGeneral.save_prefix: Autosave prefix
 settings.SettingsGeneral.save_prefix.__hint.: empty = map_name_prefix
 settings.SettingsGeneral.sound: Sound
+settings.SettingsLauncher.Zoom in: Zoom in
+settings.SettingsLauncher.Zoom out: Zoom out
 settings.SettingsLauncher.auto_check_repositories: Auto check repositories
 settings.SettingsLauncher.default_repository_enabled: Default mod repository
 settings.SettingsLauncher.extra_repository: Extra repository
+settings.SettingsLauncher.interface_scalling: Interface scalling
 settings.SettingsLauncher.update_on_startup: Update on startup
 settings.SettingsServer.AIAdventure.Nullkiller: Nullkiller
 settings.SettingsServer.AIAdventure.Nullkiller.__hint: Advanced, but slow AI, AI sees whole map (not recomended as AI for Alies)

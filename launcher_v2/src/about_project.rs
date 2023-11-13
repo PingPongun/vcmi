@@ -101,7 +101,10 @@ impl VCMILauncher {
 }
 pub fn show_join_us(ui: &mut Ui) {
     ui.heading(t!("about.Our Community"));
-    ui.label(t!("about.join_us"));
+    ui.label(t!(
+        ///Have a question? Found a bug? Want to help? Join us!
+        "about.join_us"
+    ));
     ui.group_wrapped(|ui| {
         ui.hyperlink_to("vcmi.eu", "https://vcmi.eu/");
         ui.hyperlink_to("Discord", "https://discord.com/invite/chBT42V");

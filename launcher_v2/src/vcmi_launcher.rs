@@ -173,25 +173,27 @@ impl eframe::App for VCMILauncher {
 
         if self.show_confirmation_dialog {
             // Show confirmation dialog:
-            egui::Window::new( "Confirm exit" )
-            .collapsible(false)
-            .title_bar(false)
-            .resizable(false)
-            .show(ctx, |ui| {
-                ui.heading(t!(
-                    "general.Are you sure you want to quit?\n Launcher is performing some background operations."
-                ));
-                ui.horizontal(|ui| {
-                    if ui.button(t!("_common.No")).clicked() {
-                        self.show_confirmation_dialog = false;
-                    }
+            egui::Window::new("Confirm exit")
+                .collapsible(false)
+                .title_bar(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.heading(t!(
+                        /// Are you sure you want to quit?
+                        /// Launcher is performing some background operations.
+                        "general.confirm_exit"
+                    ));
+                    ui.horizontal(|ui| {
+                        if ui.button(t!("_common.No")).clicked() {
+                            self.show_confirmation_dialog = false;
+                        }
 
-                    if ui.button(t!("_common.Yes")).clicked() || !self.ongoing_ops() {
-                        self.allowed_to_close = true;
-                        frame.close();
-                    }
+                        if ui.button(t!("_common.Yes")).clicked() || !self.ongoing_ops() {
+                            self.allowed_to_close = true;
+                            frame.close();
+                        }
+                    });
                 });
-            });
         }
         ctx.request_repaint_after(Duration::from_millis(500));
     }
