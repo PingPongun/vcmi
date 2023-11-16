@@ -239,6 +239,20 @@ impl VCMILauncher {
             );
         });
         ui.add_space(6.0);
+
+        ui.group_wrapped(|ui| {
+            self.settings.launcher.interface_scalling.show_collapsing(
+                ui,
+                &t!("first_launch.Adjust interface scalling"),
+                "",
+                0,
+                (),
+                None,
+                "zoom".into(),
+            );
+        });
+        ui.add_space(6.0);
+
         ui.label(t!(
             /// Thank you for installing VCMI!
             ///

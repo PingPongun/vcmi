@@ -26,7 +26,7 @@ use eframe::{IconData, NativeOptions, Renderer};
 use egui::Vec2;
 use log::error;
 use platform::{NativeParams, VDirs};
-use utils::get_dirs;
+use utils::{get_dirs, RUNTIME};
 use vcmi_launcher::*;
 
 #[cfg(target_os = "android")]
@@ -114,6 +114,7 @@ fn _main(mut options: NativeOptions, native: NativeParams) {
         height: icon_height,
     });
 
+    let _rt_guard = RUNTIME.enter();
     let _ = eframe::run_native(
         "VCMI Launcher",
         options,

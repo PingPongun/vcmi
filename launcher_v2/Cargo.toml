@@ -11,7 +11,7 @@ build = "build.rs"
 log = "0.4"
 image = { version = "0.24", features = ["png"] }
 egui = { version = "0.23" }
-egui_extras = { version = "0.23", features = ["all_loaders"] }
+egui_extras = { version = "0.23", features = ["file", "image"] }
 eframe = { version = "0.23", default-features = false, features = [
     "accesskit",
     "default_fonts",
@@ -23,6 +23,7 @@ eframe = { version = "0.23", default-features = false, features = [
 # egui-toast = "0.9.0"                        # in app notifications
 egui-toast = { git = "https://github.com/PingPongun/egui-toast.git", branch = "egui_23" } # in app notifications
 egui_struct = "0.3"                                                                       #generate UI from struct
+egui_reqwest_loader = { git = "https://github.com/PingPongun/egui_reqwest_loader.git" }
 
 winit = { version = "0.28.6", features = ["android-game-activity"] }
 rfd = { version = "0.12", optional = true }                          # file dialog

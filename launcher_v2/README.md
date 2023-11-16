@@ -38,7 +38,6 @@
 - detect homm lang (?)
 - fix scrolling on touch screen (scroll works only when touched on not interactive element; this is probably `egui` limitation)
 - keyboard input on android (currently not obligatory but will be necessary for lobby)
-- update all icons
 - copy applicable changes to android code (from ~17.08.23)
 - [Android] check internal data hash, or store app version in settings.json (needed for iOS?)
 - better cmake integration:
@@ -55,7 +54,6 @@
 
 ### Nice to have
 
-- zoom setting on first launch
 - pull to refresh repos (crate: egui_pull_to_refresh)
 - incremental mod update (git?, using sparse git (currently not supported by any library) can also enable instaling separete submods, which is usefull if they are dependencies of another mods)
 - vcmi updater

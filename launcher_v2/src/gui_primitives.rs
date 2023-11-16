@@ -220,7 +220,9 @@ impl EguiStruct for InterfaceScale {
             if zoom_out.clicked() {
                 self.zoom_out()
             }
-            zoom_in | zoom_out
+            let mut ret = zoom_in | zoom_out;
+            ret.mark_changed();
+            ret
         })
         .inner
     }

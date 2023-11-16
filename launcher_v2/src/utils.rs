@@ -58,7 +58,7 @@ pub use hash_helper::*;
 /////////////////////////////////////////////////////////////////
 
 lazy_static::lazy_static! {
-    static ref RUNTIME: Runtime =  Runtime::new().unwrap();
+    pub static ref RUNTIME: Runtime =  Runtime::new().unwrap();
 }
 
 #[derive(Debug, Default)]

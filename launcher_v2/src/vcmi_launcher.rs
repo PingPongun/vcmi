@@ -227,6 +227,7 @@ impl VCMILauncher {
         cc.egui_ctx.set_fonts(fonts);
 
         egui_extras::install_image_loaders(&cc.egui_ctx);
+        egui_reqwest_loader::install(&cc.egui_ctx);
 
         let mut ret = Self::default();
         ret.load_settings();
