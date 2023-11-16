@@ -15,7 +15,7 @@
     - cargo: zero-effort package managament
     - powerfull & ~simple macros
     - less error-prone
-    - less code (-3.5kloc in Java (-45%, whats left is mostly SDL), launcher from 4.5k in C++(not including *.ui files) to 3.3k in Rust (! Rust version is not yet feature full, but I guess that to reach feature parity it should close slighlty above 4k, and some of it is from "duplicating" some functionalities from vcmi_lib & android code))
+    - less code (-3.4kloc in Java (-43%, whats left is mostly SDL), launcher from 4.5k in C++(not including *.ui files) to 3.6k in Rust (some of it is from "duplicating" some functionalities from vcmi_lib & android code; Rust version has no lobby yet, but on the other hand, there are some small improvements to other views))
 - low effort to add new settings to gui
 - friendlier translations format
 - dark mode
@@ -33,9 +33,13 @@
 
 - lobby
 - hidden mods(compatibility & lang)
-- [Android] [iOS] select homm data location for copying
+- [iOS] select homm data location for copying
 - add missing settings (select display resolution- is this still needed when map zooming & interface scalling are available?)
 - detect homm lang (?)
+- fix scrolling on touch screen (scroll works only when touched on not interactive element; this is probably `egui` limitation)
+- keyboard input on android (currently not obligatory but will be necessary for lobby)
+- update all icons
+- copy applicable changes to android code (from ~17.08.23)
 - [Android] check internal data hash, or store app version in settings.json (needed for iOS?)
 - better cmake integration:
   - don't require NDK env. variable when NDK installed from conan
@@ -51,6 +55,8 @@
 
 ### Nice to have
 
+- zoom setting on first launch
+- pull to refresh repos (crate: egui_pull_to_refresh)
 - incremental mod update (git?, using sparse git (currently not supported by any library) can also enable instaling separete submods, which is usefull if they are dependencies of another mods)
 - vcmi updater
 - handle errors (not just ignore them)

@@ -128,6 +128,45 @@ impl VCMILauncher {
             })
     }
 
+    #[cfg(target_os = "android")]
+    fn first_launch_spawn_homm_data_cpy(&mut self) {
+        use anyhow::bail;
+
+        use crate::platform::DataCopyState;
+        use crate::platform::GET_HOMM_DIR_PROGRESS;
+        use std::sync::atomic::Ordering::Relaxed;
+
+        let progress = Arc::new(AtomicHOMMDataState::new(HOMMDataState::NotSelected));
+        crate::platform::open_file_dialog();
+        self.first_launch
+            .homm_data_cpy
+            .run(progress.clone(), async move {
+                while GET_HOMM_DIR_PROGRESS.load(Relaxed) == DataCopyState::Selecting {}
+                if GET_HOMM_DIR_PROGRESS.load(Relaxed) == DataCopyState::NotSelected {
+                    return Ok(());
+                }
+                if GET_HOMM_DIR_PROGRESS.load(Relaxed) == DataCopyState::NotFound {
+                    Toast::error(t!("toasts.error.Valid HoMM data not found!"));
+                    log::error!("Selected path does not contain valid HoMM data!;");
+                    bail!("");
+                }
+                Toast::success(t!("toasts.success.Valid HoMM data found!"));
+                log::info!("Valid HoMM data found!");
+                progress.store(HOMMDataState::Found, Ordering::Relaxed);
+
+                while GET_HOMM_DIR_PROGRESS.load(Relaxed) == DataCopyState::Copying {}
+
+                if GET_HOMM_DIR_PROGRESS.load(Relaxed) == DataCopyState::CopyFail {
+                    Toast::error(t!("toasts.error.HoMM data copy failed!"));
+                    log::error!("HoMM data copy failed!");
+                    bail!("");
+                }
+                Toast::success(t!("toasts.success.HoMM data imported!"));
+                log::info!("HoMM data imported!");
+                Ok(())
+            })
+    }
+
     fn first_launch_spawn_homm_data_search(&mut self) {
         //check for homm data in vcmi dirs
         let progress = Arc::new(AtomicHOMMDataState::new(HOMMDataState::CheckingVCMIDirs));
@@ -263,7 +302,7 @@ impl VCMILauncher {
                         self.first_launch_spawn_homm_data_search()
                     }
                 });
-                #[cfg(all(not(target_os = "android"), not(target_os = "ios")))]
+                #[cfg(not(target_os = "ios"))]
                 ui.group_wrapped(|ui| {
                     ui.label(t!(
                         ///Alternatively, you can provide the directory where Heroes III data is installed and VCMI will copy the existing data automatically.

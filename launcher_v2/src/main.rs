@@ -28,6 +28,9 @@ use log::error;
 use platform::{NativeParams, VDirs};
 use utils::get_dirs;
 use vcmi_launcher::*;
+
+#[cfg(target_os = "android")]
+pub use platform::Java_eu_vcmi_vcmi_MainActivity_GetHoMMDirProgress;
 #[cfg(target_os = "android")]
 use winit::platform::android::activity::AndroidApp;
 

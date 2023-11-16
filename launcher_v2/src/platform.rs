@@ -243,22 +243,7 @@ impl VCMILauncher {
 
         #[cfg(target_os = "android")]
         {
-            let ctx = ndk_context::android_context();
-            // Create a VM for executing Java calls
-            let vm = if let Ok(vm) = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) } {
-                vm
-            } else {
-                log::error!("Expected to find JVM via ndk_context crate");
-                panic!()
-            };
-            let context = unsafe { jni::objects::JObject::from_raw(ctx.context().cast()) };
-            let mut env = if let Ok(env) = vm.attach_current_thread_permanently() {
-                env
-            } else {
-                log::error!("Thread atach to VM has failed");
-                panic!()
-            };
-            env.call_method(context, "onLaunchGameBtnPressed", "()V", &[]);
+            call_java("onLaunchGameBtnPressed", "()V", &[]);
             log::info!("game client started");
         }
 
@@ -297,6 +282,99 @@ impl VCMILauncher {
         {
             // Map editor works only on desktop
             unreachable!()
+        }
+    }
+}
+
+#[cfg(target_os = "android")]
+pub use android::*;
+#[cfg(target_os = "android")]
+mod android {
+    use jni::objects::JObject;
+    use jni::objects::JString;
+    use jni::objects::JValue;
+    use jni::objects::JValueOwned;
+    use jni::strings::JNIString;
+    use jni::JNIEnv;
+    use jni::JavaVM;
+    use std::ffi::CStr;
+    use std::ffi::CString;
+    use std::sync::atomic::Ordering::Relaxed;
+    use std::sync::OnceLock;
+
+    static JAVA_VM: OnceLock<JavaVM> = OnceLock::new();
+    pub fn call_java<'local, S, T>(
+        name: S,
+        sig: T,
+        args: &[JValue<'_, '_>],
+    ) -> jni::errors::Result<JValueOwned<'local>>
+    where
+        S: Into<JNIString>,
+        T: Into<JNIString> + AsRef<str>,
+    {
+        let ctx = ndk_context::android_context();
+        let ctx = unsafe { jni::objects::JObject::from_raw(ctx.context().cast()) };
+        let vm = JAVA_VM.get_or_init(|| {
+            let ctx = ndk_context::android_context();
+            // Create a VM for executing Java calls
+            if let Ok(vm) = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) } {
+                vm
+            } else {
+                log::error!("Expected to find JVM via ndk_context crate");
+                panic!()
+            }
+        });
+        let mut env = if let Ok(env) = vm.get_env() {
+            env
+        } else {
+            if let Ok(env) = vm.attach_current_thread_permanently() {
+                env
+            } else {
+                log::error!("Thread atach to VM has failed");
+                panic!()
+            }
+        };
+        env.call_method(ctx, name, sig, args)
+    }
+
+    #[atomic_enum::atomic_enum]
+    #[derive(PartialEq)]
+    pub enum DataCopyState {
+        NotSelected,
+        Selecting,
+        NotFound,
+        Copying,
+        CopyFail,
+        Copied,
+    }
+    pub static GET_HOMM_DIR_PROGRESS: AtomicDataCopyState =
+        AtomicDataCopyState::new(DataCopyState::NotSelected);
+
+    #[no_mangle]
+    pub unsafe extern "C" fn Java_eu_vcmi_vcmi_MainActivity_GetHoMMDirProgress(
+        mut env: JNIEnv,
+        _: JObject,
+        progress: JString,
+    ) {
+        let progress = CString::from(CStr::from_ptr(env.get_string(&progress).unwrap().as_ptr()));
+        GET_HOMM_DIR_PROGRESS.store(
+            match progress.to_str().unwrap() {
+                "NULL" => DataCopyState::NotSelected,
+                "INVALID" => DataCopyState::NotFound,
+                "COPY_START" => DataCopyState::Copying,
+                "COPY_END" => DataCopyState::Copied,
+                "COPY_FAIL" => DataCopyState::CopyFail,
+                _ => unreachable!(),
+            },
+            Relaxed,
+        );
+    }
+
+    pub fn open_file_dialog() {
+        if GET_HOMM_DIR_PROGRESS.load(Relaxed) == DataCopyState::NotSelected {
+            GET_HOMM_DIR_PROGRESS.store(DataCopyState::Selecting, Relaxed);
+            call_java("onSelectHoMMDataBtnPressed", "()V", &[]);
+            log::info!("onSelectHoMMDataBtnPressed called through jni");
         }
     }
 }
