@@ -9,12 +9,14 @@ build = "build.rs"
 
 [dependencies]
 log = "0.4"
-image = { version = "0.24", features = ["png"] }
+image = { version = "0.24", default-features = false, features = [
+    "ico",
+    "png",
+] }
 egui = { version = "0.23" }
 egui_extras = { version = "0.23", features = ["file", "image"] }
 eframe = { version = "0.23", default-features = false, features = [
     "accesskit",
-    "default_fonts",
     "persistence",
     # "glow",
     "wgpu",
@@ -28,10 +30,17 @@ egui_reqwest_loader = { git = "https://github.com/PingPongun/egui_reqwest_loader
 winit = { version = "0.28.6", features = ["android-game-activity"] }
 rfd = { version = "0.12", optional = true }                          # file dialog
 
-zip = "0.6.6"
+zip = { version = "0.6.6", default-features = false, features = [
+    "deflate",
+    "bzip2",
+    "zstd",
+] }
 rust-i18n = { git = "https://github.com/PingPongun/rust-i18n.git" }
-reqwest = "0.11"                                                    # http
-tokio = { version = "1.34", features = ["rt-multi-thread"] }        # async
+reqwest = "0.11" # http
+tokio = { version = "1.34", features = [
+    "rt-multi-thread",
+    "parking_lot",
+] } # async
 
 #Serialization/deserialization
 serde = { version = "1", features = ["derive"] }
@@ -47,7 +56,9 @@ dunce = "1.0"                                       #canonicalize paths
 sys-locale = "0.3"                                  #detect system locale
 lazy_static = "1.4"
 # font-kit = "0.11.0" #load system fonts
-educe = "0.4" # struct derive macros
+educe = { version = "0.4", default-features = false, features = [
+    "Default",
+] } # struct derive macros
 fs_extra = "1.3" # copy dirs
 os_info = "3.7"
 fern = "0.6" #logging crate
@@ -94,15 +105,17 @@ required-features = ["desktop"]
 [profile.release]
 opt-level = 3
 lto = "thin"      # Enable link time optimization
+panic = 'abort'
 strip = true      # Automatically strip symbols from the binary.
-codegen-units = 4 # Reduce parallel code generation units
+codegen-units = 1 # Reduce parallel code generation units
 
 [profile.MinSizeRel]
 inherits = "release"
 opt-level = "s"
 lto = "thin"
+panic = 'abort'
 strip = true
-codegen-units = 4
+codegen-units = 1
 
 [profile.RelWithDebInfo]
 inherits = "dev"
@@ -111,7 +124,7 @@ debug = true
 debug-assertions = false #
 overflow-checks = false  #
 lto = false
-panic = 'unwind'
+panic = 'abort'          # this reduces size significantly (~20%), but is it totally safe?
 incremental = true
 codegen-units = 32       #
 

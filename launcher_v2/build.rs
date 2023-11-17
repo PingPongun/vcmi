@@ -14,6 +14,7 @@
 fn main() {
     println!("cargo:rerun-if-changed=translate");
     println!("cargo:rerun-if-changed=icons");
+    println!("cargo:rerun-if-changed=assets");
     embed_resource::compile("VCMI_launcher.rc", embed_resource::NONE);
 
     if std::env::var("CARGO_CFG_TARGET_OS").unwrap() == "ios" {

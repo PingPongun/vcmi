@@ -6,7 +6,11 @@
 - uses Rust + egui (instead of C++ + Qt)
   - as the rest of project is in C++ this may be counted also as disadvantage
   - requires more time & disc space to build
-  - binary is larger (I guess it could be mitigated somehow, but does it realy that matters nowadays if total size is 20MB larger? (~5MB can be slashed by switching from "wgpu" to "glow" on eframe))
+  - binary is larger (I guess it could be mitigated somehow, but does it realy that matters nowadays if total size is 10MB larger? 
+    - ~4MB can be slashed by switching from "wgpu" to "glow" on eframe
+    - there are some dependencies duplicated currently, soon two crates(egui&reqwest) should be updated and these duplications should disapear
+    - ~5MB is fonts (theoreticly if store chinese fonts compressed this would be -2.5MB)
+    - ~0.8MB is icons
   - GUI code is closely bound to normal code (immediate mode GUI)
   - no longer object oriented, more procedural aproach (code is more linear & can be easly followed & understood)
   - non-native look&feel

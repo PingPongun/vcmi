@@ -56,22 +56,24 @@ impl VCMILauncher {
     /////////////////////////////////////////////////////////////////
 
     fn first_launch_spawn_internal_data_cpy(&mut self) {
-        let extract_dest = get_dirs().internal.clone();
+        let _extract_dest = get_dirs().internal.clone();
         self.first_launch
             .internal_data_cpy
             .run(Arc::new(()), async move {
-                if cfg!(target_os = "android") {
+                #[cfg(target_os = "android")]
+                {
+                    //internal data needs to be unpacked only on android
                     //TODO check internal data hash at each launch
                     //TODO ? is this neaded on iOS
                     let zipped_data = include_bytes!("../assets/internalData.zip");
                     let extract_result = zip::ZipArchive::new(std::io::Cursor::new(zipped_data))
                         .unwrap()
-                        .extract(extract_dest.clone());
+                        .extract(_extract_dest.clone());
                     if let Err(err) = extract_result {
                         Toast::error(t!("toasts.error.Prepare internal data failed!"));
                         log::error!(
                             "Unpack internal data to {} failed!; Error: {}",
-                            extract_dest.display(),
+                            _extract_dest.display(),
                             err
                         );
                         return Err(err.into());
@@ -79,12 +81,10 @@ impl VCMILauncher {
                     Toast::success(t!("toasts.success.Internal data ready!"));
                     log::info!(
                         "Unpack internal data to {} finished!",
-                        extract_dest.display(),
+                        _extract_dest.display(),
                     );
-                    Ok(())
-                } else {
-                    Ok(()) //internal data needs to be unpacked only on android
                 }
+                Ok(())
             })
     }
 
